@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rainy River</title>
+
+<style>
+    html, body {
+        margin: 0;
+        overflow: hidden;
+        background: #0f172a;
+        height: 100%;
+        font-family: sans-serif;
+    }
+
+    canvas {
+        display: block;
+    }
+
+    .title {
+        position: absolute;
+        top: 30px;
+        width: 100%;
+        text-align: center;
+        color: rgba(255,255,255,0.85);
+        font-size: 2rem;
+        letter-spacing: 4px;
+        pointer-events: none;
+        text-shadow: 0 0 20px rgba(255,255,255,0.4);
+    }
+</style>
+</head>
+<body>
+
+<div class="title">RAIN OVER THE RIVER</div>
+<canvas id="scene"></canvas>
+
+<script>
+const canvas = document.getElementById("scene");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const rain = [];
+const ripples = [];
+const stars = [];
+
+for (let i = 0; i < 700; i++) {
+    rain.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        len: 10 + Math.random() * 20,
+        speed: 8 + Math.random() * 12,
+        opacity: 0.15 + Math.random() * 0.4
+    });
+}
+
+for (let i = 0; i < 80; i++) {
+    stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h * 0.5,
+        r: Math.random() * 1.5,
+        a: Math.random() * 0.5
+    });
+}
+
+function drawSky() {
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+
+    grad.addColorStop(0, "#111827");
+    grad.addColorStop(0.5, "#1e293b");
+    grad.addColorStop(1, "#334155");
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // fog glow
+    const moonGlow = ctx.createRadialGradient(
+        w * 0.75,
+        h * 0.2,
+        0,
+        w * 0.75,
+        h * 0.2,
+        300
+    );
+
+    moonGlow.addColorStop(0, "rgba(255,255,255,0.08)");
+    moonGlow.addColorStop(1, "rgba(255,255,255,0)");
+
+    ctx.fillStyle = moonGlow;
+    ctx.fillRect(0, 0, w, h);
+
+    // stars
+    for (const s of stars) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+        ctx.fill();
+    }
+}
+
+function drawMountains() {
+    ctx.fillStyle = "#0b1220";
+
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.55);
+
+    for (let x = 0; x <= w; x += 120) {
+        const peak = h * 0.35 + Math.random() * 100;
+        ctx.lineTo(x, peak);
+    }
+
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawRiver(time) {
+    const riverTop = h * 0.6;
+
+    const grad = ctx.createLinearGradient(0, riverTop, 0, h);
+
+    grad.addColorStop(0, "#1d4ed8");
+    grad.addColorStop(1, "#020617");
+
+    ctx.fillStyle = grad;
+
+    ctx.beginPath();
+    ctx.moveTo(0, riverTop);
+
+    for (let x = 0; x <= w; x += 20) {
+        const wave =
+            Math.sin(x * 0.01 + time * 0.0015) * 8 +
+            Math.sin(x * 0.02 + time * 0.001) * 5;
+
+        ctx.lineTo(x, riverTop + wave);
+    }
+
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fill();
+
+    // reflective highlights
+    for (let i = 0; i < 40; i++) {
+        const x = (i / 40) * w;
+        const y =
+            riverTop +
+            Math.sin(x * 0.01 + time * 0.0015) * 8;
+
+        ctx.fillStyle = "rgba(255,255,255,0.05)";
+        ctx.fillRect(x, y + 20, 80, 2);
+    }
+}
+
+function createRipple(x, y) {
+    ripples.push({
+        x,
+        y,
+        r: 1,
+        alpha: 0.3
+    });
+}
+
+function updateRain() {
+    ctx.lineWidth = 1.2;
+
+    for (const drop of rain) {
+        ctx.beginPath();
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x - 4, drop.y + drop.len);
+
+        ctx.strokeStyle = `rgba(180,220,255,${drop.opacity})`;
+        ctx.stroke();
+
+        drop.x -= 1;
+        drop.y += drop.speed;
+
+        if (drop.y > h) {
+            if (drop.y > h * 0.6) {
+                createRipple(drop.x, h * 0.6 + Math.random() * (h * 0.4));
+            }
+
+            drop.y = -20;
+            drop.x = Math.random() * w;
+        }
+
+        if (drop.x < -20) {
+            drop.x = w + 20;
+        }
+    }
+}
+
+function updateRipples() {
+    for (let i = ripples.length - 1; i >= 0; i--) {
+        const r = ripples[i];
+
+        ctx.beginPath();
+        ctx.ellipse(r.x, r.y, r.r * 2, r.r, 0, 0, Math.PI * 2);
+
+        ctx.strokeStyle = `rgba(180,220,255,${r.alpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        r.r += 0.5;
+        r.alpha -= 0.005;
+
+        if (r.alpha <= 0) {
+            ripples.splice(i, 1);
+        }
+    }
+}
+
+function lightning(time) {
+    const pulse = Math.sin(time * 0.002);
+
+    if (pulse > 0.995) {
+        ctx.fillStyle = `rgba(255,255,255,${(pulse - 0.995) * 18})`;
+        ctx.fillRect(0, 0, w, h);
+    }
+}
+
+function animate(time) {
+    ctx.clearRect(0, 0, w, h);
+
+    drawSky();
+    drawMountains();
+    drawRiver(time);
+
+    updateRipples();
+    updateRain();
+
+    lightning(time);
+
+    requestAnimationFrame(animate);
+}
+
+animate(0);
+</script>
+
+</body>
+</html>
