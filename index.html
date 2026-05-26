@@ -735,4 +735,555 @@ animate(0);
 </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Realistic Daytime River</title>
+
+<style>
+    html, body {
+        margin: 0;
+        overflow: hidden;
+        height: 100%;
+        background: #87ceeb;
+        font-family: Arial, sans-serif;
+    }
+
+    canvas {
+        display: block;
+    }
+
+    .title {
+        position: absolute;
+        top: 25px;
+        width: 100%;
+        text-align: center;
+        color: rgba(255,255,255,0.9);
+        font-size: 2rem;
+        letter-spacing: 5px;
+        pointer-events: none;
+        text-shadow:
+            0 0 8px rgba(0,0,0,0.2),
+            0 0 20px rgba(255,255,255,0.5);
+    }
+</style>
+</head>
+<body>
+
+<div class="title">REALISTIC DAYTIME RIVER</div>
+<canvas id="scene"></canvas>
+
+<script>
+const canvas = document.getElementById("scene");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+
+const mountains = [];
+const trees = [];
+const clouds = [];
+const birds = [];
+const ripples = [];
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+
+    generateMountains();
+    generateTrees();
+    generateClouds();
+    generateBirds();
+}
+
+window.addEventListener("resize", resize);
+
+// ---------------------
+// GENERATORS
+// ---------------------
+
+function generateMountains() {
+    mountains.length = 0;
+
+    for (let x = -100; x <= w + 200; x += 90) {
+        mountains.push({
+            x,
+            y: h * 0.23 + Math.random() * 140
+        });
+    }
+}
+
+function generateTrees() {
+    trees.length = 0;
+
+    for (let i = 0; i < 140; i++) {
+        trees.push({
+            x: Math.random() * w,
+            y: h * 0.57 + Math.random() * 90,
+            size: 18 + Math.random() * 45,
+            dark: Math.random() * 0.5
+        });
+    }
+}
+
+function generateClouds() {
+    clouds.length = 0;
+
+    for (let i = 0; i < 10; i++) {
+        clouds.push({
+            x: Math.random() * w,
+            y: Math.random() * h * 0.25,
+            size: 80 + Math.random() * 140,
+            speed: 0.08 + Math.random() * 0.2
+        });
+    }
+}
+
+function generateBirds() {
+    birds.length = 0;
+
+    for (let i = 0; i < 8; i++) {
+        birds.push({
+            x: Math.random() * w,
+            y: 80 + Math.random() * 180,
+            size: 8 + Math.random() * 10,
+            speed: 0.3 + Math.random() * 0.3
+        });
+    }
+}
+
+resize();
+
+// ---------------------
+// SKY
+// ---------------------
+
+function drawSky() {
+
+    const sky = ctx.createLinearGradient(0, 0, 0, h);
+
+    sky.addColorStop(0, "#4da8ff");
+    sky.addColorStop(0.45, "#87ceeb");
+    sky.addColorStop(1, "#eaf7ff");
+
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, h);
+
+    // atmospheric haze
+    const haze = ctx.createLinearGradient(
+        0,
+        h * 0.3,
+        0,
+        h
+    );
+
+    haze.addColorStop(0, "rgba(255,255,255,0)");
+    haze.addColorStop(1, "rgba(255,255,255,0.18)");
+
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, 0, w, h);
+
+    drawSun();
+    drawClouds();
+    drawBirds();
+}
+
+// ---------------------
+// SUN
+// ---------------------
+
+function drawSun() {
+
+    const x = w * 0.78;
+    const y = h * 0.18;
+
+    // glow
+    const glow = ctx.createRadialGradient(
+        x, y, 30,
+        x, y, 180
+    );
+
+    glow.addColorStop(0, "rgba(255,245,180,0.9)");
+    glow.addColorStop(0.4, "rgba(255,220,120,0.35)");
+    glow.addColorStop(1, "rgba(255,255,255,0)");
+
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, w, h);
+
+    // sun
+    const sun = ctx.createRadialGradient(
+        x, y, 0,
+        x, y, 55
+    );
+
+    sun.addColorStop(0, "#fffbe6");
+    sun.addColorStop(1, "#ffd54f");
+
+    ctx.beginPath();
+    ctx.arc(x, y, 55, 0, Math.PI * 2);
+
+    ctx.fillStyle = sun;
+    ctx.fill();
+}
+
+// ---------------------
+// CLOUDS
+// ---------------------
+
+function drawClouds() {
+
+    for (const c of clouds) {
+
+        ctx.fillStyle = "rgba(255,255,255,0.82)";
+
+        for (let i = 0; i < 6; i++) {
+
+            const offsetX = i * c.size * 0.16;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                c.x + offsetX,
+                c.y + Math.sin(i) * 8,
+                c.size * (0.18 + Math.random() * 0.05),
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+        }
+
+        c.x += c.speed;
+
+        if (c.x > w + 300) {
+            c.x = -300;
+        }
+    }
+}
+
+// ---------------------
+// BIRDS
+// ---------------------
+
+function drawBirds() {
+
+    ctx.strokeStyle = "rgba(0,0,0,0.35)";
+    ctx.lineWidth = 2;
+
+    for (const b of birds) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            b.x,
+            b.y,
+            b.size,
+            Math.PI,
+            0
+        );
+
+        ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.arc(
+            b.x + b.size * 2,
+            b.y,
+            b.size,
+            Math.PI,
+            0
+        );
+
+        ctx.stroke();
+
+        b.x += b.speed;
+
+        if (b.x > w + 50) {
+            b.x = -50;
+        }
+    }
+}
+
+// ---------------------
+// MOUNTAINS
+// ---------------------
+
+function drawMountains() {
+
+    // back mountains
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.6);
+
+    for (const m of mountains) {
+        ctx.lineTo(m.x, m.y);
+    }
+
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+
+    const grad = ctx.createLinearGradient(
+        0,
+        h * 0.2,
+        0,
+        h
+    );
+
+    grad.addColorStop(0, "#6b7280");
+    grad.addColorStop(0.5, "#475569");
+    grad.addColorStop(1, "#334155");
+
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // mist
+    const mist = ctx.createLinearGradient(
+        0,
+        h * 0.4,
+        0,
+        h * 0.7
+    );
+
+    mist.addColorStop(0, "rgba(255,255,255,0)");
+    mist.addColorStop(1, "rgba(255,255,255,0.15)");
+
+    ctx.fillStyle = mist;
+    ctx.fillRect(0, h * 0.3, w, h * 0.4);
+}
+
+// ---------------------
+// FOREST
+// ---------------------
+
+function drawTrees() {
+
+    for (const t of trees) {
+
+        // trunk
+        ctx.fillStyle = "#4b3621";
+
+        ctx.fillRect(
+            t.x,
+            t.y,
+            t.size * 0.12,
+            t.size
+        );
+
+        // leaves
+        const leaves = ctx.createRadialGradient(
+            t.x,
+            t.y,
+            5,
+            t.x,
+            t.y,
+            t.size
+        );
+
+        leaves.addColorStop(
+            0,
+            `rgba(110,220,120,1)`
+        );
+
+        leaves.addColorStop(
+            1,
+            `rgba(${20 + t.dark * 40},
+                   ${90 + t.dark * 50},
+                   30,
+                   1)`
+        );
+
+        ctx.beginPath();
+
+        ctx.arc(
+            t.x + t.size * 0.06,
+            t.y,
+            t.size * 0.5,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = leaves;
+        ctx.fill();
+    }
+}
+
+// ---------------------
+// RIVER
+// ---------------------
+
+function drawRiver(time) {
+
+    const top = h * 0.64;
+
+    const river = ctx.createLinearGradient(
+        0,
+        top,
+        0,
+        h
+    );
+
+    river.addColorStop(0, "#60a5fa");
+    river.addColorStop(0.5, "#2563eb");
+    river.addColorStop(1, "#0f172a");
+
+    ctx.fillStyle = river;
+
+    ctx.beginPath();
+    ctx.moveTo(0, top);
+
+    for (let x = 0; x <= w; x += 10) {
+
+        const wave =
+            Math.sin(x * 0.008 + time * 0.0015) * 12 +
+            Math.sin(x * 0.025 + time * 0.0008) * 5;
+
+        ctx.lineTo(x, top + wave);
+    }
+
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+
+    ctx.fill();
+
+    // reflections
+    for (let i = 0; i < 120; i++) {
+
+        const x = Math.random() * w;
+
+        const y =
+            top +
+            Math.random() * (h - top);
+
+        const alpha =
+            0.03 + Math.random() * 0.08;
+
+        ctx.fillStyle =
+            `rgba(255,255,255,${alpha})`;
+
+        ctx.fillRect(
+            x,
+            y,
+            20 + Math.random() * 60,
+            1.2
+        );
+    }
+
+    // sunlight reflection path
+    const reflection = ctx.createLinearGradient(
+        w * 0.75,
+        top,
+        w * 0.75,
+        h
+    );
+
+    reflection.addColorStop(
+        0,
+        "rgba(255,255,220,0.2)"
+    );
+
+    reflection.addColorStop(
+        1,
+        "rgba(255,255,255,0)"
+    );
+
+    ctx.fillStyle = reflection;
+
+    ctx.beginPath();
+
+    ctx.moveTo(w * 0.72, top);
+
+    ctx.lineTo(w * 0.82, h);
+    ctx.lineTo(w * 0.68, h);
+
+    ctx.closePath();
+    ctx.fill();
+}
+
+// ---------------------
+// RIPPLES
+// ---------------------
+
+function createRipple(x, y) {
+    ripples.push({
+        x,
+        y,
+        r: 1,
+        alpha: 0.15
+    });
+}
+
+function updateRipples() {
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+
+        const r = ripples[i];
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            r.x,
+            r.y,
+            r.r * 2,
+            r.r,
+            0,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.strokeStyle =
+            `rgba(255,255,255,${r.alpha})`;
+
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        r.r += 0.4;
+        r.alpha -= 0.003;
+
+        if (r.alpha <= 0) {
+            ripples.splice(i, 1);
+        }
+    }
+}
+
+// ---------------------
+// AMBIENT WATER RIPPLES
+// ---------------------
+
+function generateAmbientRipples() {
+
+    if (Math.random() < 0.2) {
+
+        createRipple(
+            Math.random() * w,
+            h * 0.67 +
+            Math.random() * (h * 0.3)
+        );
+    }
+}
+
+// ---------------------
+// ANIMATION
+// ---------------------
+
+function animate(time) {
+
+    ctx.clearRect(0, 0, w, h);
+
+    drawSky();
+    drawMountains();
+    drawTrees();
+    drawRiver(time);
+
+    generateAmbientRipples();
+    updateRipples();
+
+    requestAnimationFrame(animate);
+}
+
+animate(0);
+</script>
+
+</body>
 </html>
