@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TV Widget</title>
-
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,8 +44,7 @@
 
   #tv {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 340px;
     cursor: grab;
@@ -67,8 +65,10 @@
   .bezel-shape { fill: url(#grad-bezel); stroke: rgba(80,30,70,0.5); stroke-width: 1; filter: url(#inner-shadow-bezel); }
   .screen-bg   { fill: url(#grad-screen); }
 
-  .btn-bg { fill: url(#grad-btn-bg); stroke: #7c3d6a; stroke-width: 1; cursor: pointer; }
-  .btn-inner { fill: url(#grad-btn); stroke: rgba(40,10,50,0.6); stroke-width: 1; cursor: pointer; }
+  .deco-line   { fill: none; stroke: rgba(80,30,65,0.55); stroke-width: 1.5; stroke-linecap: round; }
+
+  .btn-bg      { fill: url(#grad-btn-bg); stroke: #7c3d6a; stroke-width: 1; cursor: pointer; }
+  .btn-inner   { fill: url(#grad-btn); stroke: rgba(40,10,50,0.6); stroke-width: 1; cursor: pointer; }
 
   .btn-inner.on {
     fill: url(#grad-btn-on);
@@ -76,6 +76,8 @@
   }
 
   .screen-click { fill: transparent; cursor: pointer; }
+  .glare-overlay { pointer-events: none; }
+
 </style>
 </head>
 
@@ -92,12 +94,12 @@
   </clipPath>
 </defs>
 
-<!-- TV BODY (UNCHANGED VISUALS EXPECTED FROM YOUR TV.svg) -->
+<!-- TV BODY (UNCHANGED) -->
 <circle class="case-ring" cx="306.87" cy="229.31" r="216.56"/>
 <ellipse class="bezel-shape" cx="305.41" cy="236.55" rx="186.13" ry="209.32"/>
 <circle class="screen-bg" cx="305.41" cy="236.55" r="101.78"/>
 
-<!-- ✅ ONLY FIXED VIDEO LAYER -->
+<!-- ✅ FIXED VIDEO (ONLY CHANGE HERE) -->
 <foreignObject id="video-fo"
   x="203.63" y="134.77"
   width="203.56" height="203.56"
@@ -112,7 +114,8 @@
     playsinline
     preload="auto">
 
-    <source src="The Powerpuff Girls.mp4" type="video/mp4"/>
+    <source src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/The%20Powerpuff%20Girls.mp4"
+            type="video/mp4"/>
   </video>
 </foreignObject>
 
@@ -144,10 +147,10 @@ function togglePlay() {
 
     videoFO.style.opacity = '1';
 
-    // 🔥 IMPORTANT FIX: force render first then play
+    // 🔥 IMPORTANT FIX: ensure render first, THEN play with sound
     requestAnimationFrame(() => {
-      vid.muted = false;
-      vid.currentTime = vid.currentTime;
+      vid.muted = false;      // unmute properly
+      vid.currentTime = vid.currentTime; // forces refresh
       vid.play().catch(()=>{});
     });
 
@@ -165,6 +168,28 @@ function togglePlay() {
 
 screenClick.addEventListener('click', togglePlay);
 btnInner.addEventListener('click', togglePlay);
+
+/* DRAG (UNCHANGED) */
+let dragging = false, sx, sy;
+let x = window.innerWidth/2, y = window.innerHeight/2;
+
+tv.addEventListener('mousedown', e=>{
+  if (e.target === btnInner) return;
+  dragging = true;
+  sx = e.clientX - x;
+  sy = e.clientY - y;
+});
+
+window.addEventListener('mousemove', e=>{
+  if (!dragging) return;
+  x = e.clientX - sx;
+  y = e.clientY - sy;
+  tv.style.left = x + 'px';
+  tv.style.top = y + 'px';
+  tv.style.transform = 'translate(-50%,-50%)';
+});
+
+window.addEventListener('mouseup', ()=> dragging = false);
 
 </script>
 
