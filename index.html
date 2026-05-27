@@ -27,13 +27,13 @@ body{
     background-color:black;
 }
 
-/* TV */
+/* TV CONTAINER */
 
 #tvContainer{
     position:absolute;
 
-    width:650px;
-    max-width:90vw;
+    width:900px;
+    max-width:95vw;
 
     left:50%;
     top:50%;
@@ -59,17 +59,18 @@ body{
     filter:drop-shadow(0 10px 20px rgba(0,0,0,0.4));
 }
 
-/* VIDEO — NOW IN FRONT */
+/* VIDEO SCREEN */
 
 #videoWrapper{
     position:absolute;
 
-    /* ADJUST THESE IF NEEDED */
+    /* YOUR EXACT SCREEN VALUES */
 
-    left:18%;
-    top:16.5%;
-    width:47%;
-    height:41%;
+    width:236px;
+    height:229px;
+
+    left:306px;
+    top:211px;
 
     overflow:hidden;
     border-radius:50%;
@@ -105,8 +106,8 @@ body{
     width:50px;
     height:50px;
 
-    right:14%;
-    top:38%;
+    right:120px;
+    top:340px;
 }
 
 /* PLAY BUTTON */
@@ -115,11 +116,11 @@ body{
     width:50px;
     height:50px;
 
-    right:14%;
-    top:50%;
+    right:120px;
+    top:440px;
 }
 
-/* FLOAT */
+/* FLOATING */
 
 @keyframes float{
 
@@ -146,10 +147,13 @@ body{
         width:95vw;
     }
 
-    #powerBtn,
-    #playBtn{
-        width:40px;
-        height:40px;
+    #videoWrapper{
+
+        width:26vw;
+        height:26vw;
+
+        left:34vw;
+        top:23vw;
     }
 }
 
@@ -161,9 +165,9 @@ body{
 <div id="tvContainer">
 
     <!-- TV -->
-    <img src="TV1.png" id="tvFrame">
+    <img src="TV2.png" id="tvFrame">
 
-    <!-- VIDEO IN FRONT -->
+    <!-- VIDEO -->
     <div id="videoWrapper">
 
         <video
@@ -189,9 +193,7 @@ body{
 const tv = document.getElementById("tvContainer");
 const video = document.getElementById("tvVideo");
 
-/* ---------------- */
 /* DRAGGING */
-/* ---------------- */
 
 let dragging = false;
 let offsetX = 0;
@@ -249,9 +251,7 @@ document.addEventListener("touchend", ()=>{
     dragging = false;
 });
 
-/* ---------------- */
-/* POWER BUTTON */
-/* ---------------- */
+/* POWER */
 
 const powerBtn = document.getElementById("powerBtn");
 
@@ -273,9 +273,7 @@ powerBtn.addEventListener("click", ()=>{
     }
 });
 
-/* ---------------- */
 /* PLAY / PAUSE */
-/* ---------------- */
 
 const playBtn = document.getElementById("playBtn");
 
