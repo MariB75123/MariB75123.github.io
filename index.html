@@ -64,13 +64,17 @@ body{
 #videoWrapper{
     position:absolute;
 
-    /* YOUR EXACT SCREEN VALUES */
+    /* EXACT SCREEN SIZE */
 
     width:236px;
     height:229px;
 
-    left:306px;
-    top:211px;
+    /* PERFECTLY CENTERED INSIDE PURPLE CIRCLE */
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-112%, -53%);
 
     overflow:hidden;
     border-radius:50%;
@@ -152,8 +156,10 @@ body{
         width:26vw;
         height:26vw;
 
-        left:34vw;
-        top:23vw;
+        left:50%;
+        top:50%;
+
+        transform:translate(-112%, -53%);
     }
 }
 
