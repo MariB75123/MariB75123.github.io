@@ -1,174 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Powerpuff TV</title>
 
 <style>
-    *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
-        user-select:none;
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+
+    /* SMALLER BACKGROUND SCALE */
+    background:
+        url("Wallpaper.jpeg")
+        center center / contain
+        no-repeat fixed;
+
+    background-color:black;
+}
+
+/* TV CONTAINER */
+
+#tvContainer{
+    position:absolute;
+
+    width:650px;
+    max-width:90vw;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%, -50%);
+    z-index:10;
+
+    cursor:grab;
+
+    animation:float 4s ease-in-out infinite;
+}
+
+#tvContainer:active{
+    cursor:grabbing;
+}
+
+/* TV IMAGE */
+
+#tvFrame{
+    width:100%;
+    position:relative;
+    z-index:2;
+
+    pointer-events:none;
+
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+}
+
+/* VIDEO OVERLAY */
+
+#videoWrapper{
+    position:absolute;
+
+    /* ADJUST THESE */
+    left:18%;
+    top:16.5%;
+    width:47%;
+    height:41%;
+
+    border-radius:50%;
+    overflow:hidden;
+
+    z-index:5;
+}
+
+#tvVideo{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+
+    border-radius:50%;
+
+    filter:
+        contrast(1.05)
+        saturate(1.05);
+}
+
+/* BUTTONS */
+
+.tvButton{
+    position:absolute;
+    border-radius:50%;
+    z-index:20;
+    cursor:pointer;
+}
+
+/* POWER */
+
+#powerBtn{
+    width:50px;
+    height:50px;
+
+    right:14%;
+    top:38%;
+}
+
+/* PLAY */
+
+#playBtn{
+    width:50px;
+    height:50px;
+
+    right:14%;
+    top:50%;
+}
+
+/* FLOATING */
+
+@keyframes float{
+    0%{
+        transform:translate(-50%, -50%) translateY(0px);
     }
+
+    50%{
+        transform:translate(-50%, -50%) translateY(-6px);
+    }
+
+    100%{
+        transform:translate(-50%, -50%) translateY(0px);
+    }
+}
+
+@media(max-width:768px){
 
     body{
-        overflow:hidden;
-        width:100vw;
-        height:100vh;
-        background:url("Wallpaper.jpeg") center center/cover no-repeat fixed;
-        font-family:Arial, Helvetica, sans-serif;
+        background-size:cover;
     }
-
-    /* TV CONTAINER */
 
     #tvContainer{
-        position:absolute;
-        width:700px;
-        max-width:90vw;
-        cursor:grab;
-        left:50%;
-        top:50%;
-        transform:translate(-50%, -50%);
-        z-index:10;
+        width:95vw;
     }
 
-    #tvContainer:active{
-        cursor:grabbing;
-    }
-
-    /* VIDEO SCREEN */
-
-    #videoWrapper{
-        position:absolute;
-
-        /* ADJUST THESE TO PERFECTLY FIT YOUR TV SCREEN */
-        left:17.5%;
-        top:16%;
-        width:48%;
-        height:42%;
-
-        overflow:hidden;
-        border-radius:50%;
-        z-index:1;
-
-        box-shadow:
-            0 0 30px rgba(255,255,255,0.3),
-            inset 0 0 20px rgba(255,255,255,0.2);
-    }
-
-    #tvVideo{
-        width:100%;
-        height:100%;
-        object-fit:cover;
-        filter:
-            contrast(1.1)
-            saturate(1.1)
-            brightness(0.95);
-    }
-
-    /* TV FRAME IMAGE */
-
-    #tvFrame{
-        position:relative;
-        width:100%;
-        z-index:5;
-        pointer-events:none;
-        filter:
-            drop-shadow(0 15px 30px rgba(0,0,0,0.5))
-            drop-shadow(0 0 25px rgba(255,255,255,0.15));
-    }
-
-    /* SVG BUTTON LAYER */
-
-    #svgButtons{
-        position:absolute;
-        inset:0;
-        z-index:20;
-        pointer-events:none;
-    }
-
-    .tvButton{
-        position:absolute;
-        border-radius:50%;
-        cursor:pointer;
-        pointer-events:auto;
-        transition:0.2s;
-    }
-
-    .tvButton:hover{
-        transform:scale(1.08);
-        box-shadow:0 0 15px rgba(255,255,255,0.5);
-    }
-
-    .tvButton:active{
-        transform:scale(0.95);
-    }
-
-    /* POWER BUTTON */
-
-    #powerBtn{
-        width:52px;
-        height:52px;
-        right:14%;
-        top:38%;
-    }
-
-    /* PLAY/PAUSE */
-
+    #powerBtn,
     #playBtn{
-        width:52px;
-        height:52px;
-        right:14%;
-        top:50%;
+        width:40px;
+        height:40px;
     }
+}
 
-    /* CRT EFFECT */
-
-    #crt{
-        position:absolute;
-        inset:0;
-        pointer-events:none;
-        z-index:50;
-        mix-blend-mode:overlay;
-        opacity:0.15;
-        background:
-            repeating-linear-gradient(
-                to bottom,
-                rgba(255,255,255,0.08),
-                rgba(255,255,255,0.08) 1px,
-                transparent 2px,
-                transparent 4px
-            );
-    }
-
-    /* TV FLOAT ANIMATION */
-
-    @keyframes floatTV{
-        0%{ transform:translate(-50%, -50%) translateY(0px); }
-        50%{ transform:translate(-50%, -50%) translateY(-8px); }
-        100%{ transform:translate(-50%, -50%) translateY(0px); }
-    }
-
-    #tvContainer{
-        animation:floatTV 4s ease-in-out infinite;
-    }
-
-    /* MOBILE */
-
-    @media(max-width:768px){
-
-        #tvContainer{
-            width:95vw;
-        }
-
-        #powerBtn,
-        #playBtn{
-            width:40px;
-            height:40px;
-        }
-    }
 </style>
 </head>
 
@@ -176,8 +161,12 @@
 
 <div id="tvContainer">
 
-    <!-- VIDEO INSIDE TV -->
+    <!-- TV IMAGE -->
+    <img src="TV.png" id="tvFrame">
+
+    <!-- VIDEO ON TOP -->
     <div id="videoWrapper">
+
         <video
             id="tvVideo"
             autoplay
@@ -187,133 +176,123 @@
         >
             <source src="The Powerpuff Girls.mp4" type="video/mp4">
         </video>
-    </div>
-
-    <!-- TV PNG -->
-    <img id="tvFrame" src="TV.png" alt="TV">
-
-    <!-- SVG BUTTON HIT AREAS -->
-    <div id="svgButtons">
-
-        <!-- POWER -->
-        <div class="tvButton" id="powerBtn"></div>
-
-        <!-- PLAY / PAUSE -->
-        <div class="tvButton" id="playBtn"></div>
 
     </div>
 
-    <!-- CRT -->
-    <div id="crt"></div>
+    <!-- BUTTONS -->
+
+    <div class="tvButton" id="powerBtn"></div>
+    <div class="tvButton" id="playBtn"></div>
 
 </div>
 
 <script>
-    const tv = document.getElementById("tvContainer");
-    const video = document.getElementById("tvVideo");
 
-    /* ----------------------------- */
-    /* DRAGGABLE TV */
-    /* ----------------------------- */
+const tv = document.getElementById("tvContainer");
+const video = document.getElementById("tvVideo");
 
-    let isDragging = false;
-    let offsetX, offsetY;
+/* -------------------- */
+/* DRAGGING */
+/* -------------------- */
 
-    tv.addEventListener("mousedown", (e) => {
+let isDragging = false;
+let offsetX, offsetY;
 
-        isDragging = true;
+tv.addEventListener("mousedown", (e)=>{
 
-        offsetX = e.clientX - tv.offsetLeft;
-        offsetY = e.clientY - tv.offsetTop;
+    isDragging = true;
 
-        tv.style.animation = "none";
-    });
+    offsetX = e.clientX - tv.offsetLeft;
+    offsetY = e.clientY - tv.offsetTop;
 
-    document.addEventListener("mousemove", (e) => {
+    tv.style.animation = "none";
+});
 
-        if(!isDragging) return;
+document.addEventListener("mousemove", (e)=>{
 
-        tv.style.left = `${e.clientX - offsetX}px`;
-        tv.style.top = `${e.clientY - offsetY}px`;
-        tv.style.transform = "translate(0,0)";
-    });
+    if(!isDragging) return;
 
-    document.addEventListener("mouseup", () => {
-        isDragging = false;
-    });
+    tv.style.left = `${e.clientX - offsetX}px`;
+    tv.style.top = `${e.clientY - offsetY}px`;
 
-    /* TOUCH SUPPORT */
+    tv.style.transform = "translate(0,0)";
+});
 
-    tv.addEventListener("touchstart", (e) => {
+document.addEventListener("mouseup", ()=>{
 
-        isDragging = true;
+    isDragging = false;
+});
 
-        offsetX = e.touches[0].clientX - tv.offsetLeft;
-        offsetY = e.touches[0].clientY - tv.offsetTop;
+/* TOUCH */
 
-        tv.style.animation = "none";
+tv.addEventListener("touchstart", (e)=>{
 
-    }, { passive:true });
+    isDragging = true;
 
-    document.addEventListener("touchmove", (e) => {
+    offsetX = e.touches[0].clientX - tv.offsetLeft;
+    offsetY = e.touches[0].clientY - tv.offsetTop;
 
-        if(!isDragging) return;
+    tv.style.animation = "none";
 
-        tv.style.left = `${e.touches[0].clientX - offsetX}px`;
-        tv.style.top = `${e.touches[0].clientY - offsetY}px`;
-        tv.style.transform = "translate(0,0)";
+}, { passive:true });
 
-    }, { passive:true });
+document.addEventListener("touchmove", (e)=>{
 
-    document.addEventListener("touchend", () => {
-        isDragging = false;
-    });
+    if(!isDragging) return;
 
-    /* ----------------------------- */
-    /* POWER BUTTON */
-    /* ----------------------------- */
+    tv.style.left = `${e.touches[0].clientX - offsetX}px`;
+    tv.style.top = `${e.touches[0].clientY - offsetY}px`;
 
-    const powerBtn = document.getElementById("powerBtn");
+    tv.style.transform = "translate(0,0)";
 
-    let powerOn = true;
+}, { passive:true });
 
-    powerBtn.addEventListener("click", () => {
+document.addEventListener("touchend", ()=>{
 
-        powerOn = !powerOn;
+    isDragging = false;
+});
 
-        if(powerOn){
+/* -------------------- */
+/* POWER BUTTON */
+/* -------------------- */
 
-            video.style.opacity = "1";
-            video.play();
+const powerBtn = document.getElementById("powerBtn");
 
-            document.getElementById("videoWrapper").style.boxShadow =
-                "0 0 30px rgba(255,255,255,0.3), inset 0 0 20px rgba(255,255,255,0.2)";
+let power = true;
 
-        } else {
+powerBtn.addEventListener("click", ()=>{
 
-            video.pause();
+    power = !power;
 
-            video.style.opacity = "0";
+    if(power){
 
-            document.getElementById("videoWrapper").style.boxShadow =
-                "0 0 5px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,1)";
-        }
-    });
+        video.style.opacity = "1";
+        video.play();
 
-    /* ----------------------------- */
-    /* PLAY / PAUSE BUTTON */
-    /* ----------------------------- */
+    }else{
 
-    const playBtn = document.getElementById("playBtn");
+        video.pause();
+        video.style.opacity = "0";
+    }
+});
 
-    playBtn.addEventListener("click", () => {
+/* -------------------- */
+/* PLAY / PAUSE */
+/* -------------------- */
 
-        if(video.paused){
-            video.play();
-        } else {
-            video.pause();
-        }
-    });
+const playBtn = document.getElementById("playBtn");
+
+playBtn.addEventListener("click", ()=>{
+
+    if(video.paused){
+
+        video.play();
+
+    }else{
+
+        video.pause();
+    }
+});
 
 </script>
 
