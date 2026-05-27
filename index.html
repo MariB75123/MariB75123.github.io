@@ -3,226 +3,201 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TV Widget</title>
+<title>Retro TV Widget</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: #0e0a12;
-  height: 100vh;
-  overflow: hidden;
-  font-family: 'DM Mono', monospace;
+  height:100vh;
+  overflow:hidden;
+  font-family:'DM Mono', monospace;
+  background: #000;
 }
 
-/* GRID BACKGROUND */
+/* BACKGROUND IMAGE */
 body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(200,120,180,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(200,120,180,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
+  content:'';
+  position:fixed;
+  inset:0;
+  background: url("Wallpaper.jpeg") center/cover no-repeat;
+  filter: brightness(0.55) contrast(1.1) saturate(1.2);
+  transform: scale(1.05);
+}
+
+/* DARK OVERLAY FOR DEPTH */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background: radial-gradient(circle at center,
+    rgba(0,0,0,0.2),
+    rgba(0,0,0,0.75));
+  pointer-events:none;
 }
 
 /* HINT */
 .hint {
-  position: fixed;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  letter-spacing: 0.25em;
-  color: rgba(200,140,180,0.4);
-  transition: opacity 0.6s;
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:11px;
+  letter-spacing:0.25em;
+  color:rgba(255,200,230,0.35);
+  transition:0.5s;
+  z-index:10;
 }
-.hint.hidden { opacity: 0; }
+.hint.hidden { opacity:0; }
 
 /* TV WRAPPER */
 #tv {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 340px;
-  cursor: grab;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:420px;
+  cursor:grab;
   filter:
-    drop-shadow(0 30px 60px rgba(90,20,70,0.7))
-    drop-shadow(0 0 90px rgba(180,90,150,0.2));
+    drop-shadow(0 40px 80px rgba(0,0,0,0.6))
+    drop-shadow(0 0 120px rgba(255,120,200,0.15));
 }
 
-#tv:active { cursor: grabbing; }
+#tv:active { cursor:grabbing; }
 
 #tv.playing {
   filter:
-    drop-shadow(0 30px 60px rgba(90,20,70,0.7))
-    drop-shadow(0 0 120px rgba(255,120,200,0.45));
+    drop-shadow(0 40px 90px rgba(0,0,0,0.7))
+    drop-shadow(0 0 140px rgba(255,120,200,0.35));
 }
 
-/* BUTTON PRESS */
-.btn-inner {
-  transition: transform 0.08s ease, filter 0.2s ease;
-}
-.btn-inner:active {
-  transform: translateY(2px);
-}
-
-/* SCREEN FLICKER */
-@keyframes flicker {
-  0%,100% { opacity: 0.92; }
-  50% { opacity: 1; }
-}
-#scanlines-circle {
-  animation: flicker 0.12s infinite;
+/* TV SVG BASE LAYER */
+#tv svg {
+  width:100%;
+  height:auto;
+  display:block;
+  position:relative;
+  z-index:2;
 }
 
-/* IDLE BLINK */
-@keyframes blink {
-  0%,90%,100% { transform: scaleY(1); }
-  95% { transform: scaleY(0.08); }
-}
-.idle-blink {
-  animation: blink 4s infinite;
-  transform-box: fill-box;
-}
-
-/* VIDEO LAYER */
-#video-fo {
-  transition: opacity 0.5s ease;
+/* TV TEXTURE OVERLAY (TV2.png) */
+#tv::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url("TV2.png") center/contain no-repeat;
+  opacity:0.35;
+  mix-blend-mode:overlay;
+  pointer-events:none;
+  z-index:3;
 }
 
-/* SCANLINES */
-#scanlines-circle {
-  opacity: 0;
-  transition: opacity 0.4s;
+/* SCREEN VIDEO LAYER */
+#screen-video {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-55%);
+  width:42%;
+  height:42%;
+  border-radius:50%;
+  overflow:hidden;
+  z-index:1;
 }
+
+/* VIDEO */
+video {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* CRT EFFECT */
+#screen-video::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.15),
+      rgba(0,0,0,0.15) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  pointer-events:none;
+  opacity:0.35;
+}
+
+/* BUTTON */
+#btn {
+  position:absolute;
+  bottom:18%;
+  left:50%;
+  transform:translateX(-50%);
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, #ffb3df, #7a2b60);
+  box-shadow:
+    0 5px 10px rgba(0,0,0,0.5),
+    inset 0 2px 6px rgba(255,255,255,0.2);
+  cursor:pointer;
+  z-index:5;
+}
+
+#btn:active {
+  transform:translateX(-50%) translateY(2px);
+}
+
+/* IDLE STATE TEXT */
+#idle {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  color:rgba(255,180,220,0.4);
+  font-size:12px;
+  letter-spacing:0.3em;
+  z-index:2;
+  pointer-events:none;
+}
+
+.hidden { opacity:0; }
+
 </style>
 </head>
 
 <body>
 
-<div class="hint" id="hint">drag anywhere · click screen or button</div>
+<div class="hint" id="hint">drag tv · click button to play</div>
 
 <div id="tv">
 
-<svg viewBox="0 0 629.36 592.79">
+  <!-- SCREEN VIDEO -->
+  <div id="screen-video">
+    <video id="vid" loop playsinline preload="auto">
+      <source src="The Powerpuff Girls.mp4" type="video/mp4">
+    </video>
 
-<defs>
+    <div id="idle">NO SIGNAL</div>
+  </div>
 
-<!-- BEVEL -->
-<filter id="bevel">
-  <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="b"/>
-  <feOffset dx="-4" dy="-4" result="o1"/>
-  <feOffset dx="5" dy="6" result="o2"/>
-  <feFlood flood-color="#ffd8ef" flood-opacity="0.4" result="h"/>
-  <feComposite in="h" in2="o1" operator="in" result="hl"/>
-  <feFlood flood-color="#4a1d3f" flood-opacity="0.6" result="s"/>
-  <feComposite in="s" in2="o2" operator="in" result="sh"/>
-  <feMerge>
-    <feMergeNode in="sh"/>
-    <feMergeNode in="SourceGraphic"/>
-    <feMergeNode in="hl"/>
-  </feMerge>
-</filter>
+  <!-- TV BODY SVG -->
+  <object type="image/svg+xml" data="TV.svg"></object>
 
-<!-- SCREEN GLOW -->
-<filter id="glow">
-  <feDropShadow dx="0" dy="0" stdDeviation="10"
-    flood-color="#ff7bd5" flood-opacity="0.35"/>
-</filter>
-
-<!-- CLIP SCREEN -->
-<clipPath id="clip">
-  <circle cx="305.41" cy="236.55" r="101.78"/>
-</clipPath>
-
-<!-- SCANLINES -->
-<pattern id="scan" width="1" height="4" patternUnits="userSpaceOnUse">
-  <rect width="1" height="3" fill="transparent"/>
-  <rect y="3" width="1" height="1" fill="rgba(0,0,0,0.18)"/>
-</pattern>
-
-</defs>
-
-<!-- STAND -->
-<path filter="url(#bevel)" fill="url(#grad)"
-d="M152.65,544.53c41.39-24.39,78.41-58.84,96.82-105.92..."/>
-
-<!-- OUTER BODY -->
-<circle cx="306.8" cy="229" r="216"
-fill="#c97aa8" filter="url(#bevel)"/>
-
-<!-- INNER BEZEL -->
-<ellipse cx="305.4" cy="236.5" rx="186" ry="209"
-fill="#8b3f6f" filter="url(#bevel)"/>
-
-<!-- SCREEN -->
-<circle cx="305.4" cy="236.5" r="102"
-fill="#2a0f2f" filter="url(#glow)"/>
-
-<!-- VIDEO -->
-<foreignObject id="video-fo"
-x="203.6" y="134.7" width="204" height="204"
-clip-path="url(#clip)" opacity="0">
-
-<video id="vid"
-style="width:100%;height:100%;object-fit:cover"
-loop playsinline preload="auto">
-
-<source src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/The%20Powerpuff%20Girls.mp4">
-
-</video>
-</foreignObject>
-
-<!-- IDLE -->
-<g id="idle">
-  <circle cx="305.4" cy="236.5" r="102" fill="#3b1a40"/>
-  <circle class="idle-blink" cx="305.4" cy="230" r="18"
-    fill="none" stroke="rgba(255,150,200,0.3)"/>
-  <text x="305.4" y="265" text-anchor="middle"
-    font-size="10" fill="rgba(255,180,220,0.4)">
-    NO SIGNAL
-  </text>
-</g>
-
-<!-- SCANLINES -->
-<circle id="scanlines-circle"
-cx="305.4" cy="236.5" r="102"
-fill="url(#scan)" clip-path="url(#clip)"/>
-
-<!-- GLARE -->
-<circle cx="305.4" cy="236.5" r="102"
-fill="rgba(255,255,255,0.08)"
-clip-path="url(#clip)"/>
-
-<!-- CLICK AREA -->
-<circle id="screen-click"
-cx="305.4" cy="236.5" r="102"
-fill="transparent"/>
-
-<!-- BUTTON -->
-<ellipse cx="306.8" cy="472.6" rx="22" ry="15"
-fill="#7a3a60"/>
-<ellipse id="btn" class="btn-inner"
-cx="306.8" cy="472.6" rx="15" ry="10"
-fill="#a85c90"/>
-
-</svg>
+  <!-- BUTTON -->
+  <div id="btn"></div>
 
 </div>
 
 <script>
 const tv = document.getElementById('tv');
 const vid = document.getElementById('vid');
-const fo = document.getElementById('video-fo');
-const idle = document.getElementById('idle');
-const scan = document.getElementById('scanlines-circle');
 const btn = document.getElementById('btn');
-const screen = document.getElementById('screen-click');
+const idle = document.getElementById('idle');
 const hint = document.getElementById('hint');
 
 let playing = false;
@@ -232,80 +207,78 @@ async function toggle() {
 
   if (!playing) {
     try {
-      await vid.play();
-
+      await vid.play(); // sound allowed (user gesture)
       playing = true;
-      fo.style.opacity = 1;
-      idle.style.opacity = 0;
-      scan.style.opacity = 1;
+
+      idle.classList.add('hidden');
       tv.classList.add('playing');
 
     } catch(e) {
-      console.log(e);
+      console.log("Playback blocked:", e);
     }
 
   } else {
     vid.pause();
-
     playing = false;
-    fo.style.opacity = 0;
-    idle.style.opacity = 1;
-    scan.style.opacity = 0;
+
+    idle.classList.remove('hidden');
     tv.classList.remove('playing');
   }
 }
 
-/* EVENTS */
+/* BUTTON */
 btn.addEventListener('click', toggle);
-screen.addEventListener('click', toggle);
 
 /* DRAG */
-let drag = false, sx, sy;
-let x = innerWidth/2, y = innerHeight/2;
+let dragging = false;
+let offsetX, offsetY;
 
-function set(xp, yp) {
-  x = xp; y = yp;
+let x = window.innerWidth/2;
+let y = window.innerHeight/2;
+
+function setPos(nx, ny) {
+  x = nx; y = ny;
   tv.style.left = x + 'px';
   tv.style.top = y + 'px';
   tv.style.transform = 'translate(-50%,-50%)';
 }
 
-set(x,y);
+setPos(x,y);
 
 tv.addEventListener('mousedown', e => {
   if (e.target === btn) return;
-  drag = true;
-  sx = e.clientX - x;
-  sy = e.clientY - y;
+  dragging = true;
+  offsetX = e.clientX - x;
+  offsetY = e.clientY - y;
 });
 
 window.addEventListener('mousemove', e => {
-  if (!drag) return;
-  set(e.clientX - sx, e.clientY - sy);
+  if (!dragging) return;
+  setPos(e.clientX - offsetX, e.clientY - offsetY);
   hint.classList.add('hidden');
 });
 
-window.addEventListener('mouseup', () => drag = false);
+window.addEventListener('mouseup', () => dragging = false);
 
 /* TOUCH */
 tv.addEventListener('touchstart', e => {
   if (e.target === btn) return;
   const t = e.touches[0];
-  drag = true;
-  sx = t.clientX - x;
-  sy = t.clientY - y;
-}, {passive:false});
+  dragging = true;
+  offsetX = t.clientX - x;
+  offsetY = t.clientY - y;
+},{passive:false});
 
 window.addEventListener('touchmove', e => {
-  if (!drag) return;
+  if (!dragging) return;
   const t = e.touches[0];
-  set(t.clientX - sx, t.clientY - sy);
-}, {passive:false});
+  setPos(t.clientX - offsetX, t.clientY - offsetY);
+},{passive:false});
 
-window.addEventListener('touchend', () => drag = false);
+window.addEventListener('touchend', () => dragging = false);
 
-/* HINT */
-setTimeout(() => hint.classList.add('hidden'), 4000);
+/* HINT FADE */
+setTimeout(()=> hint.classList.add('hidden'), 4000);
 
 </script>
 
