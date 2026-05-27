@@ -46,20 +46,16 @@ body{
 }
 
 /* VIDEO SCREEN */
-/* NOW ABOVE THE TV IMAGE */
+/* EXACT PIXEL VALUES */
 
 #videoWrapper{
     position:absolute;
 
-    /* EXACT SCREEN SIZE */
+    width:235.96px;
+    height:228.99px;
 
-    width:236px;
-    height:229px;
-
-    /* EXACT SCREEN POSITION */
-
-    left:306px;
-    top:211px;
+    left:306.03px;
+    top:210.53px;
 
     overflow:hidden;
 
@@ -78,8 +74,8 @@ body{
 
     border-radius:50%;
 
-    /* keep inside purple circle */
-    transform:scale(0.88);
+    /* keeps video inside purple circle */
+    transform:scale(0.86);
 
     filter:
         contrast(1.05)
@@ -87,7 +83,6 @@ body{
 }
 
 /* TV IMAGE */
-/* NOW UNDER VIDEO */
 
 #tvFrame{
     width:100%;
@@ -111,7 +106,7 @@ body{
     cursor:pointer;
 }
 
-/* POWER BUTTON */
+/* POWER */
 
 #powerBtn{
     width:50px;
@@ -121,7 +116,7 @@ body{
     top:340px;
 }
 
-/* PLAY BUTTON */
+/* PLAY */
 
 #playBtn{
     width:50px;
@@ -264,7 +259,7 @@ document.addEventListener("touchend", ()=>{
     dragging = false;
 });
 
-/* POWER BUTTON */
+/* POWER */
 
 const powerBtn = document.getElementById("powerBtn");
 
