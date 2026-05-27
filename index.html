@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TV Widget</title>
-
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +16,6 @@
     cursor: default;
     user-select: none;
   }
-
   body::before {
     content: '';
     position: fixed; inset: 0;
@@ -30,8 +28,7 @@
 
   .hint {
     position: fixed;
-    bottom: 32px;
-    left: 50%;
+    bottom: 32px; left: 50%;
     transform: translateX(-50%);
     color: rgba(200,140,180,0.4);
     font-size: 11px;
@@ -41,64 +38,32 @@
     transition: opacity 0.6s;
     z-index: 100;
   }
-
   .hint.hidden { opacity: 0; }
 
   #tv {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 340px;
     cursor: grab;
-    filter:
-      drop-shadow(0 30px 60px rgba(90,20,70,0.7))
-      drop-shadow(0 0 80px rgba(180,90,150,0.2));
+    filter: drop-shadow(0 30px 60px rgba(90,20,70,0.7)) drop-shadow(0 0 80px rgba(180,90,150,0.2));
     transition: filter 0.2s;
   }
-
   #tv:active { cursor: grabbing; }
-
   #tv.playing {
-    filter:
-      drop-shadow(0 30px 60px rgba(90,20,70,0.7))
-      drop-shadow(0 0 100px rgba(220,120,180,0.45));
+    filter: drop-shadow(0 30px 60px rgba(90,20,70,0.7)) drop-shadow(0 0 100px rgba(220,120,180,0.45));
   }
-
-  #tv svg {
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
+  #tv svg { width: 100%; height: auto; overflow: visible; }
 
   .stand-shape { fill: url(#grad-stand); stroke: #7c3d6a; stroke-width: 1.5; filter: url(#shadow-stand); }
   .case-ring   { fill: url(#grad-case);  stroke: #7c3d6a; stroke-width: 1.5; filter: url(#bevel-case); }
   .bezel-shape { fill: url(#grad-bezel); stroke: rgba(80,30,70,0.5); stroke-width: 1; filter: url(#inner-shadow-bezel); }
   .screen-bg   { fill: url(#grad-screen); }
   .deco-line   { fill: none; stroke: rgba(80,30,65,0.55); stroke-width: 1.5; stroke-linecap: round; }
-
-  .btn-bg {
-    fill: url(#grad-btn-bg);
-    stroke: #7c3d6a;
-    stroke-width: 1;
-    filter: url(#shadow-btn);
-    cursor: pointer;
-  }
-
-  .btn-inner {
-    fill: url(#grad-btn);
-    stroke: rgba(40,10,50,0.6);
-    stroke-width: 1;
-    cursor: pointer;
-  }
-
+  .btn-bg      { fill: url(#grad-btn-bg); stroke: #7c3d6a; stroke-width: 1; filter: url(#shadow-btn); cursor: pointer; }
+  .btn-inner   { fill: url(#grad-btn); stroke: rgba(40,10,50,0.6); stroke-width: 1; cursor: pointer; }
   .btn-inner:hover { filter: brightness(1.25); }
-
-  .btn-inner.on {
-    fill: url(#grad-btn-on);
-    filter: drop-shadow(0 0 6px rgba(255,160,220,0.9));
-  }
-
+  .btn-inner.on { fill: url(#grad-btn-on); filter: drop-shadow(0 0 6px rgba(255,160,220,0.9)); }
   .screen-click { fill: transparent; cursor: pointer; }
   .glare-overlay { pointer-events: none; }
 
@@ -106,201 +71,235 @@
     0%,90%,100% { transform: scaleY(1); transform-origin: center; }
     95% { transform: scaleY(0.08); transform-origin: center; }
   }
-
-  .idle-blink {
-    animation: blink 4s ease-in-out infinite;
-    transform-box: fill-box;
-    transform-origin: center;
-  }
+  .idle-blink { animation: blink 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 </style>
 </head>
-
 <body>
 
 <div class="hint" id="hint">drag me anywhere · click screen or button to play</div>
 
 <div id="tv">
-
 <svg viewBox="0 0 629.36 592.79" xmlns="http://www.w3.org/2000/svg">
   <defs>
 
     <filter id="bevel-case" x="-10%" y="-10%" width="120%" height="120%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
-      <feOffset dx="-4" dy="-5"/>
-      <feFlood flood-color="#f5c0e0" flood-opacity="0.45"/>
-      <feComposite operator="in"/>
-      <feOffset dx="5" dy="6"/>
-      <feFlood flood-color="#5a2050" flood-opacity="0.65"/>
-      <feComposite operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+      <feOffset in="SourceAlpha" dx="-4" dy="-5" result="offsetBlur"/>
+      <feFlood flood-color="#f5c0e0" flood-opacity="0.45" result="highlight"/>
+      <feComposite in="highlight" in2="offsetBlur" operator="in" result="highlightComp"/>
+      <feOffset in="SourceAlpha" dx="5" dy="6" result="shadowOffset"/>
+      <feFlood flood-color="#5a2050" flood-opacity="0.65" result="shadowColor"/>
+      <feComposite in="shadowColor" in2="shadowOffset" operator="in" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="highlightComp"/></feMerge>
     </filter>
 
-    <filter id="inner-shadow-bezel">
-      <feGaussianBlur stdDeviation="8"/>
-      <feOffset dy="6"/>
-      <feFlood flood-color="#2a0830" flood-opacity="0.6"/>
-      <feComposite operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="inner-shadow-bezel" x="-8%" y="-8%" width="116%" height="116%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feOffset dx="0" dy="6" result="offset"/>
+      <feFlood flood-color="#2a0830" flood-opacity="0.6" result="color"/>
+      <feComposite in="color" in2="offset" operator="in" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
 
-    <filter id="shadow-screen">
+    <filter id="shadow-screen" x="-15%" y="-15%" width="130%" height="130%">
       <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#1a0520" flood-opacity="0.9"/>
     </filter>
-
-    <filter id="shadow-btn">
+    <filter id="shadow-stand" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#3a1040" flood-opacity="0.5"/>
+    </filter>
+    <filter id="shadow-btn" x="-30%" y="-30%" width="160%" height="160%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2a0830" flood-opacity="0.7"/>
     </filter>
 
-    <radialGradient id="grad-case">
-      <stop offset="0%" stop-color="#f0c4de"/>
+    <radialGradient id="grad-case" cx="42%" cy="38%" r="58%" fx="38%" fy="32%">
+      <stop offset="0%"   stop-color="#f0c4de"/>
+      <stop offset="40%"  stop-color="#d888b8"/>
+      <stop offset="75%"  stop-color="#b86090"/>
       <stop offset="100%" stop-color="#8a3868"/>
     </radialGradient>
-
-    <radialGradient id="grad-bezel">
-      <stop offset="0%" stop-color="#c878a8"/>
+    <radialGradient id="grad-bezel" cx="50%" cy="45%" r="55%" fx="45%" fy="38%">
+      <stop offset="0%"   stop-color="#c878a8"/>
+      <stop offset="35%"  stop-color="#a05888"/>
+      <stop offset="70%"  stop-color="#7a3868"/>
       <stop offset="100%" stop-color="#5a2850"/>
     </radialGradient>
-
-    <radialGradient id="grad-screen">
-      <stop offset="0%" stop-color="#7a4882"/>
+    <radialGradient id="grad-screen" cx="40%" cy="35%" r="60%" fx="35%" fy="30%">
+      <stop offset="0%"   stop-color="#7a4882"/>
+      <stop offset="30%"  stop-color="#5a2d65"/>
+      <stop offset="65%"  stop-color="#3d1c4a"/>
       <stop offset="100%" stop-color="#220d30"/>
     </radialGradient>
-
-    <radialGradient id="grad-btn-bg">
-      <stop offset="0%" stop-color="#d890c0"/>
+    <linearGradient id="grad-stand" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#c060a0"/>
+      <stop offset="30%"  stop-color="#e8a8cc"/>
+      <stop offset="70%"  stop-color="#e8a8cc"/>
+      <stop offset="100%" stop-color="#a84880"/>
+    </linearGradient>
+    <radialGradient id="grad-btn-bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%"   stop-color="#d890c0"/>
       <stop offset="100%" stop-color="#904878"/>
     </radialGradient>
-
-    <radialGradient id="grad-btn">
-      <stop offset="0%" stop-color="#c078a8"/>
+    <radialGradient id="grad-btn" cx="40%" cy="35%" r="65%">
+      <stop offset="0%"   stop-color="#c078a8"/>
       <stop offset="100%" stop-color="#6a3060"/>
     </radialGradient>
-
-    <radialGradient id="grad-btn-on">
-      <stop offset="0%" stop-color="#ffd0f0"/>
+    <radialGradient id="grad-btn-on" cx="40%" cy="35%" r="65%">
+      <stop offset="0%"   stop-color="#ffd0f0"/>
+      <stop offset="50%"  stop-color="#ff90d0"/>
       <stop offset="100%" stop-color="#cc50a0"/>
+    </radialGradient>
+    <radialGradient id="grad-glare" cx="30%" cy="25%" r="55%">
+      <stop offset="0%"   stop-color="white" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
     </radialGradient>
 
     <clipPath id="clip-screen">
       <circle cx="305.41" cy="236.55" r="101.78"/>
     </clipPath>
 
+    <pattern id="scanlines" x="0" y="0" width="1" height="4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="1" height="3" fill="transparent"/>
+      <rect x="0" y="3" width="1" height="1" fill="rgba(0,0,0,0.18)"/>
+    </pattern>
+
   </defs>
 
-  <!-- TV BODY -->
+  <!-- STAND -->
+  <path class="stand-shape" d="M152.65,544.53c41.39-24.39,78.41-58.84,96.82-105.92,0,0,26.43,6.31,55.94,7.26s62.23-8.64,62.23-8.64v1.38c.94,20.2,22.87,42.05,35.25,56.19,15.77,18.02,34.31,39.26,56.35,49.73h-.02c0,22.02-70.65,39.85-157.95,39.85-82.15,0-148.62-17.83-148.62-39.85Z"/>
+
+  <!-- OUTER CASE -->
   <circle class="case-ring" cx="306.87" cy="229.31" r="216.56"/>
+
+  <!-- INNER BEZEL -->
   <ellipse class="bezel-shape" cx="305.41" cy="236.55" rx="186.13" ry="209.32"/>
 
-  <!-- SCREEN BASE -->
+  <!-- DECORATIVE LINES -->
+  <path class="deco-line" d="M385.52,176.54c43.24,0,78.24-22.38,78.24-50.03"/>
+  <path class="deco-line" d="M150.03,121.25c1.59,30.77,33.82,55.29,73.42,55.29"/>
+  <path class="deco-line" d="M368.56,318.64c9.83,31.82,63.1,37.15,89.84,37.15"/>
+  <path class="deco-line" d="M237.56,312.41c0,21.73-39.18,39.32-87.6,39.32"/>
+
+  <!-- SCREEN dark bg -->
   <circle class="screen-bg" cx="305.41" cy="236.55" r="101.78" filter="url(#shadow-screen)"/>
 
-  <!-- VIDEO (FIXED: REMOVED MUTED) -->
-  <foreignObject id="video-fo"
-    x="203.63" y="134.77"
-    width="203.56" height="203.56"
-    clip-path="url(#clip-screen)"
-    opacity="0"
-    style="transition: opacity 0.5s;">
-
-    <video id="vid"
-      xmlns="http://www.w3.org/1999/xhtml"
+  <!-- VIDEO — embedded inside SVG, clipped to screen circle -->
+  <foreignObject id="video-fo" x="203.63" y="134.77" width="203.56" height="203.56"
+    clip-path="url(#clip-screen)" opacity="0" style="transition: opacity 0.5s;">
+    <video id="vid" xmlns="http://www.w3.org/1999/xhtml"
       style="width:100%;height:100%;object-fit:cover;display:block;"
-      loop
-      playsinline
-      preload="auto">
-
-      <source src="The Powerpuff Girls.mp4" type="video/mp4"/>
+      loop muted playsinline>
+      <source src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/The%20Powerpuff%20Girls.mp4" type="video/mp4"/>
     </video>
   </foreignObject>
 
-  <!-- IDLE -->
-  <g id="idle-group" clip-path="url(#clip-screen)">
+  <!-- IDLE STATE -->
+  <g id="idle-group" clip-path="url(#clip-screen)" style="transition: opacity 0.5s;">
     <circle cx="305.41" cy="236.55" r="101.78" fill="url(#grad-screen)"/>
+    <circle class="idle-blink" cx="305.41" cy="230" r="18" fill="none" stroke="rgba(200,120,170,0.35)" stroke-width="1.5"/>
+    <circle class="idle-blink" cx="305.41" cy="230" r="8" fill="rgba(180,100,150,0.2)"/>
     <text x="305.41" y="264" text-anchor="middle"
-      font-size="9" fill="rgba(200,130,170,0.45)">
-      NO SIGNAL
-    </text>
+      font-family="'DM Mono',monospace" font-size="9" letter-spacing="3"
+      fill="rgba(200,130,170,0.45)">NO SIGNAL</text>
   </g>
 
-  <!-- CLICK AREA -->
-  <circle class="screen-click" id="screen-click"
-    cx="305.41" cy="236.55" r="101.78"/>
+  <!-- SCANLINES -->
+  <circle id="scanlines-circle" cx="305.41" cy="236.55" r="101.78"
+    fill="url(#scanlines)" clip-path="url(#clip-screen)"
+    opacity="0" style="transition:opacity 0.5s; pointer-events:none;"/>
+
+  <!-- GLARE -->
+  <circle class="glare-overlay" cx="305.41" cy="236.55" r="101.78"
+    fill="url(#grad-glare)" clip-path="url(#clip-screen)"/>
+
+  <!-- Invisible click target -->
+  <circle class="screen-click" id="screen-click" cx="305.41" cy="236.55" r="101.78"/>
 
   <!-- BUTTON -->
   <ellipse class="btn-bg" cx="306.87" cy="472.68" rx="22.24" ry="15.41"/>
   <ellipse class="btn-inner" id="btn-inner" cx="306.87" cy="472.68" rx="15.29" ry="10.6"/>
 
 </svg>
-
 </div>
 
 <script>
-const tv = document.getElementById('tv');
-const vid = document.getElementById('vid');
-const btnInner = document.getElementById('btn-inner');
+const tv          = document.getElementById('tv');
 const screenClick = document.getElementById('screen-click');
-const videoFO = document.getElementById('video-fo');
-const idle = document.getElementById('idle-group');
-const hint = document.getElementById('hint');
+const btnInner    = document.getElementById('btn-inner');
+const btnBg       = tv.querySelector('.btn-bg');
+const vid         = document.getElementById('vid');
+const videoFO     = document.getElementById('video-fo');
+const idleGroup   = document.getElementById('idle-group');
+const scanlinesEl = document.getElementById('scanlines-circle');
+const hint        = document.getElementById('hint');
 
 let isPlaying = false;
 
 function togglePlay() {
   isPlaying = !isPlaying;
-
   if (isPlaying) {
-    vid.play().catch(()=>{});
-    videoFO.style.opacity = '1';
-    idle.style.opacity = '0';
+    vid.play().catch(() => {});
+    videoFO.style.opacity    = '1';
+    idleGroup.style.opacity  = '0';
+    scanlinesEl.style.opacity = '1';
     btnInner.classList.add('on');
     tv.classList.add('playing');
   } else {
     vid.pause();
-    videoFO.style.opacity = '0';
-    idle.style.opacity = '1';
+    videoFO.style.opacity    = '0';
+    idleGroup.style.opacity  = '1';
+    scanlinesEl.style.opacity = '0';
     btnInner.classList.remove('on');
     tv.classList.remove('playing');
   }
 }
 
-btnInner.addEventListener('click', togglePlay);
 screenClick.addEventListener('click', togglePlay);
+btnInner.addEventListener('click', togglePlay);
+btnBg.addEventListener('click', togglePlay);
 
-/* DRAG */
-let dragging = false, sx, sy;
-let x = window.innerWidth/2, y = window.innerHeight/2;
+// DRAG
+let dragging = false, startX, startY;
+let posX = window.innerWidth / 2, posY = window.innerHeight / 2;
 
-function setPos(nx, ny) {
-  x = nx; y = ny;
-  tv.style.left = x + 'px';
-  tv.style.top = y + 'px';
+function setPos(x, y) {
+  posX = x; posY = y;
+  tv.style.left      = x + 'px';
+  tv.style.top       = y + 'px';
   tv.style.transform = 'translate(-50%,-50%)';
 }
+setPos(posX, posY);
 
-setPos(x,y);
-
-tv.addEventListener('mousedown', e=>{
-  if (e.target === btnInner) return;
+tv.addEventListener('mousedown', e => {
+  if ([screenClick, btnInner, btnBg].includes(e.target)) return;
   dragging = true;
-  sx = e.clientX - x;
-  sy = e.clientY - y;
+  startX = e.clientX - posX;
+  startY = e.clientY - posY;
+  e.preventDefault();
 });
-
-window.addEventListener('mousemove', e=>{
+window.addEventListener('mousemove', e => {
   if (!dragging) return;
-  setPos(e.clientX - sx, e.clientY - sy);
+  setPos(e.clientX - startX, e.clientY - startY);
+  hint.classList.add('hidden');
 });
+window.addEventListener('mouseup', () => { dragging = false; });
 
-window.addEventListener('mouseup', ()=> dragging = false);
+tv.addEventListener('touchstart', e => {
+  if ([screenClick, btnInner, btnBg].includes(e.target)) return;
+  const t = e.touches[0];
+  dragging = true;
+  startX = t.clientX - posX;
+  startY = t.clientY - posY;
+  e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const t = e.touches[0];
+  setPos(t.clientX - startX, t.clientY - startY);
+  e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchend', () => { dragging = false; });
 
-setTimeout(()=>hint.classList.add('hidden'), 4000);
+setTimeout(() => hint.classList.add('hidden'), 4000);
 </script>
-
 </body>
 </html>
