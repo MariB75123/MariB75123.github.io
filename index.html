@@ -52,7 +52,7 @@ body{
     display:block;
 
     position:relative;
-    z-index:1;
+    z-index:5;
 
     pointer-events:none;
 
@@ -60,27 +60,31 @@ body{
 }
 
 /* VIDEO SCREEN */
+/* EXACT SIZE + CENTERED INSIDE PURPLE CIRCLE */
 
 #videoWrapper{
     position:absolute;
 
-    /* EXACT SCREEN SIZE */
-
     width:236px;
     height:229px;
 
-    /* PERFECTLY CENTERED INSIDE PURPLE CIRCLE */
+    /* EXACT COORDINATES */
 
-    left:50%;
-    top:50%;
+    left:306px;
+    top:211px;
 
-    transform:translate(-112%, -53%);
-
-    overflow:hidden;
+    /* KEEP VIDEO INSIDE CIRCLE */
     border-radius:50%;
 
-    z-index:10;
+    overflow:hidden;
+
+    z-index:2;
+
+    /* invisible helper layer */
+    background:transparent;
 }
+
+/* VIDEO */
 
 #tvVideo{
     width:100%;
@@ -89,6 +93,9 @@ body{
     object-fit:cover;
 
     border-radius:50%;
+
+    /* prevents touching outer edge */
+    transform:scale(0.88);
 
     filter:
         contrast(1.05)
@@ -124,7 +131,7 @@ body{
     top:440px;
 }
 
-/* FLOATING */
+/* FLOAT */
 
 @keyframes float{
 
@@ -141,6 +148,8 @@ body{
     }
 }
 
+/* MOBILE */
+
 @media(max-width:768px){
 
     body{
@@ -153,13 +162,11 @@ body{
 
     #videoWrapper{
 
-        width:26vw;
-        height:26vw;
+        width:25vw;
+        height:24vw;
 
-        left:50%;
-        top:50%;
-
-        transform:translate(-112%, -53%);
+        left:34vw;
+        top:23vw;
     }
 }
 
@@ -170,10 +177,7 @@ body{
 
 <div id="tvContainer">
 
-    <!-- TV -->
-    <img src="TV2.png" id="tvFrame">
-
-    <!-- VIDEO -->
+    <!-- VIDEO INSIDE TV SCREEN LAYER -->
     <div id="videoWrapper">
 
         <video
@@ -187,6 +191,9 @@ body{
         </video>
 
     </div>
+
+    <!-- TV FRAME ABOVE VIDEO -->
+    <img src="TV2.png" id="tvFrame">
 
     <!-- BUTTONS -->
     <div class="tvButton" id="powerBtn"></div>
@@ -257,7 +264,7 @@ document.addEventListener("touchend", ()=>{
     dragging = false;
 });
 
-/* POWER */
+/* POWER BUTTON */
 
 const powerBtn = document.getElementById("powerBtn");
 
