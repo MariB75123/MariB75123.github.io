@@ -104,61 +104,52 @@
     <filter id="shadow-screen" x="-15%" y="-15%" width="130%" height="130%">
       <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#1a0520" flood-opacity="0.9"/>
     </filter>
-
     <filter id="shadow-stand" x="-15%" y="-15%" width="130%" height="130%">
       <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#3a1040" flood-opacity="0.5"/>
     </filter>
-
     <filter id="shadow-btn" x="-30%" y="-30%" width="160%" height="160%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2a0830" flood-opacity="0.7"/>
     </filter>
 
     <radialGradient id="grad-case" cx="42%" cy="38%" r="58%" fx="38%" fy="32%">
-      <stop offset="0%" stop-color="#f0c4de"/>
-      <stop offset="40%" stop-color="#d888b8"/>
-      <stop offset="75%" stop-color="#b86090"/>
+      <stop offset="0%"   stop-color="#f0c4de"/>
+      <stop offset="40%"  stop-color="#d888b8"/>
+      <stop offset="75%"  stop-color="#b86090"/>
       <stop offset="100%" stop-color="#8a3868"/>
     </radialGradient>
-
     <radialGradient id="grad-bezel" cx="50%" cy="45%" r="55%" fx="45%" fy="38%">
-      <stop offset="0%" stop-color="#c878a8"/>
-      <stop offset="35%" stop-color="#a05888"/>
-      <stop offset="70%" stop-color="#7a3868"/>
+      <stop offset="0%"   stop-color="#c878a8"/>
+      <stop offset="35%"  stop-color="#a05888"/>
+      <stop offset="70%"  stop-color="#7a3868"/>
       <stop offset="100%" stop-color="#5a2850"/>
     </radialGradient>
-
     <radialGradient id="grad-screen" cx="40%" cy="35%" r="60%" fx="35%" fy="30%">
-      <stop offset="0%" stop-color="#7a4882"/>
-      <stop offset="30%" stop-color="#5a2d65"/>
-      <stop offset="65%" stop-color="#3d1c4a"/>
+      <stop offset="0%"   stop-color="#7a4882"/>
+      <stop offset="30%"  stop-color="#5a2d65"/>
+      <stop offset="65%"  stop-color="#3d1c4a"/>
       <stop offset="100%" stop-color="#220d30"/>
     </radialGradient>
-
     <linearGradient id="grad-stand" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#c060a0"/>
-      <stop offset="30%" stop-color="#e8a8cc"/>
-      <stop offset="70%" stop-color="#e8a8cc"/>
+      <stop offset="0%"   stop-color="#c060a0"/>
+      <stop offset="30%"  stop-color="#e8a8cc"/>
+      <stop offset="70%"  stop-color="#e8a8cc"/>
       <stop offset="100%" stop-color="#a84880"/>
     </linearGradient>
-
     <radialGradient id="grad-btn-bg" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#d890c0"/>
+      <stop offset="0%"   stop-color="#d890c0"/>
       <stop offset="100%" stop-color="#904878"/>
     </radialGradient>
-
     <radialGradient id="grad-btn" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#c078a8"/>
+      <stop offset="0%"   stop-color="#c078a8"/>
       <stop offset="100%" stop-color="#6a3060"/>
     </radialGradient>
-
     <radialGradient id="grad-btn-on" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#ffd0f0"/>
-      <stop offset="50%" stop-color="#ff90d0"/>
+      <stop offset="0%"   stop-color="#ffd0f0"/>
+      <stop offset="50%"  stop-color="#ff90d0"/>
       <stop offset="100%" stop-color="#cc50a0"/>
     </radialGradient>
-
     <radialGradient id="grad-glare" cx="30%" cy="25%" r="55%">
-      <stop offset="0%" stop-color="white" stop-opacity="0.22"/>
+      <stop offset="0%"   stop-color="white" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="white" stop-opacity="0"/>
     </radialGradient>
 
@@ -173,40 +164,57 @@
 
   </defs>
 
-  <!-- EVERYTHING EXACTLY SAME -->
+  <!-- STAND -->
+  <path class="stand-shape" d="M152.65,544.53c41.39-24.39,78.41-58.84,96.82-105.92,0,0,26.43,6.31,55.94,7.26s62.23-8.64,62.23-8.64v1.38c.94,20.2,22.87,42.05,35.25,56.19,15.77,18.02,34.31,39.26,56.35,49.73h-.02c0,22.02-70.65,39.85-157.95,39.85-82.15,0-148.62-17.83-148.62-39.85Z"/>
 
-  <path class="stand-shape" d="M152.65,544.53c41.39-24.39..."/>
+  <!-- OUTER CASE -->
   <circle class="case-ring" cx="306.87" cy="229.31" r="216.56"/>
+
+  <!-- INNER BEZEL -->
   <ellipse class="bezel-shape" cx="305.41" cy="236.55" rx="186.13" ry="209.32"/>
 
+  <!-- DECORATIVE LINES -->
+  <path class="deco-line" d="M385.52,176.54c43.24,0,78.24-22.38,78.24-50.03"/>
+  <path class="deco-line" d="M150.03,121.25c1.59,30.77,33.82,55.29,73.42,55.29"/>
+  <path class="deco-line" d="M368.56,318.64c9.83,31.82,63.1,37.15,89.84,37.15"/>
+  <path class="deco-line" d="M237.56,312.41c0,21.73-39.18,39.32-87.6,39.32"/>
+
+  <!-- SCREEN dark bg -->
   <circle class="screen-bg" cx="305.41" cy="236.55" r="101.78" filter="url(#shadow-screen)"/>
 
-  <!-- ONLY FIX: REMOVED MUTED -->
-  <foreignObject id="video-fo"
-    x="203.63" y="134.77"
-    width="203.56" height="203.56"
-    clip-path="url(#clip-screen)"
-    opacity="0"
-    style="transition: opacity 0.5s;">
-
-    <video id="vid"
-      xmlns="http://www.w3.org/1999/xhtml"
+  <!-- VIDEO — embedded inside SVG, clipped to screen circle -->
+  <foreignObject id="video-fo" x="203.63" y="134.77" width="203.56" height="203.56"
+    clip-path="url(#clip-screen)" opacity="0" style="transition: opacity 0.5s;">
+    <video id="vid" xmlns="http://www.w3.org/1999/xhtml"
       style="width:100%;height:100%;object-fit:cover;display:block;"
-      loop
-      playsinline
-      preload="auto">
-
-      <source src="The Powerpuff Girls.mp4" type="video/mp4"/>
+      loop muted playsinline>
+      <source src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/The%20Powerpuff%20Girls.mp4" type="video/mp4"/>
     </video>
   </foreignObject>
 
-  <g id="idle-group" clip-path="url(#clip-screen)">
+  <!-- IDLE STATE -->
+  <g id="idle-group" clip-path="url(#clip-screen)" style="transition: opacity 0.5s;">
     <circle cx="305.41" cy="236.55" r="101.78" fill="url(#grad-screen)"/>
+    <circle class="idle-blink" cx="305.41" cy="230" r="18" fill="none" stroke="rgba(200,120,170,0.35)" stroke-width="1.5"/>
+    <circle class="idle-blink" cx="305.41" cy="230" r="8" fill="rgba(180,100,150,0.2)"/>
+    <text x="305.41" y="264" text-anchor="middle"
+      font-family="'DM Mono',monospace" font-size="9" letter-spacing="3"
+      fill="rgba(200,130,170,0.45)">NO SIGNAL</text>
   </g>
 
-  <circle id="screen-click" class="screen-click"
-    cx="305.41" cy="236.55" r="101.78"/>
+  <!-- SCANLINES -->
+  <circle id="scanlines-circle" cx="305.41" cy="236.55" r="101.78"
+    fill="url(#scanlines)" clip-path="url(#clip-screen)"
+    opacity="0" style="transition:opacity 0.5s; pointer-events:none;"/>
 
+  <!-- GLARE -->
+  <circle class="glare-overlay" cx="305.41" cy="236.55" r="101.78"
+    fill="url(#grad-glare)" clip-path="url(#clip-screen)"/>
+
+  <!-- Invisible click target -->
+  <circle class="screen-click" id="screen-click" cx="305.41" cy="236.55" r="101.78"/>
+
+  <!-- BUTTON -->
   <ellipse class="btn-bg" cx="306.87" cy="472.68" rx="22.24" ry="15.41"/>
   <ellipse class="btn-inner" id="btn-inner" cx="306.87" cy="472.68" rx="15.29" ry="10.6"/>
 
@@ -214,36 +222,84 @@
 </div>
 
 <script>
-const tv = document.getElementById('tv');
-const vid = document.getElementById('vid');
-const btnInner = document.getElementById('btn-inner');
+const tv          = document.getElementById('tv');
 const screenClick = document.getElementById('screen-click');
-const videoFO = document.getElementById('video-fo');
-const idle = document.getElementById('idle-group');
+const btnInner    = document.getElementById('btn-inner');
+const btnBg       = tv.querySelector('.btn-bg');
+const vid         = document.getElementById('vid');
+const videoFO     = document.getElementById('video-fo');
+const idleGroup   = document.getElementById('idle-group');
+const scanlinesEl = document.getElementById('scanlines-circle');
+const hint        = document.getElementById('hint');
 
 let isPlaying = false;
 
 function togglePlay() {
   isPlaying = !isPlaying;
-
   if (isPlaying) {
-    vid.play().catch(()=>{});
-    videoFO.style.opacity = '1';
-    idle.style.opacity = '0';
+    vid.play().catch(() => {});
+    videoFO.style.opacity    = '1';
+    idleGroup.style.opacity  = '0';
+    scanlinesEl.style.opacity = '1';
     btnInner.classList.add('on');
     tv.classList.add('playing');
   } else {
     vid.pause();
-    videoFO.style.opacity = '0';
-    idle.style.opacity = '1';
+    videoFO.style.opacity    = '0';
+    idleGroup.style.opacity  = '1';
+    scanlinesEl.style.opacity = '0';
     btnInner.classList.remove('on');
     tv.classList.remove('playing');
   }
 }
 
-btnInner.addEventListener('click', togglePlay);
 screenClick.addEventListener('click', togglePlay);
-</script>
+btnInner.addEventListener('click', togglePlay);
+btnBg.addEventListener('click', togglePlay);
 
+// DRAG
+let dragging = false, startX, startY;
+let posX = window.innerWidth / 2, posY = window.innerHeight / 2;
+
+function setPos(x, y) {
+  posX = x; posY = y;
+  tv.style.left      = x + 'px';
+  tv.style.top       = y + 'px';
+  tv.style.transform = 'translate(-50%,-50%)';
+}
+setPos(posX, posY);
+
+tv.addEventListener('mousedown', e => {
+  if ([screenClick, btnInner, btnBg].includes(e.target)) return;
+  dragging = true;
+  startX = e.clientX - posX;
+  startY = e.clientY - posY;
+  e.preventDefault();
+});
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  setPos(e.clientX - startX, e.clientY - startY);
+  hint.classList.add('hidden');
+});
+window.addEventListener('mouseup', () => { dragging = false; });
+
+tv.addEventListener('touchstart', e => {
+  if ([screenClick, btnInner, btnBg].includes(e.target)) return;
+  const t = e.touches[0];
+  dragging = true;
+  startX = t.clientX - posX;
+  startY = t.clientY - posY;
+  e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const t = e.touches[0];
+  setPos(t.clientX - startX, t.clientY - startY);
+  e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchend', () => { dragging = false; });
+
+setTimeout(() => hint.classList.add('hidden'), 4000);
+</script>
 </body>
 </html>
