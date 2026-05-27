@@ -19,7 +19,6 @@ body{
     height:100vh;
     overflow:hidden;
 
-    /* SMALLER BACKGROUND SCALE */
     background:
         url("Wallpaper.jpeg")
         center center / contain
@@ -28,7 +27,7 @@ body{
     background-color:black;
 }
 
-/* TV CONTAINER */
+/* TV */
 
 #tvContainer{
     position:absolute;
@@ -40,49 +39,48 @@ body{
     top:50%;
 
     transform:translate(-50%, -50%);
-    z-index:10;
 
     cursor:grab;
 
     animation:float 4s ease-in-out infinite;
 }
 
-#tvContainer:active{
-    cursor:grabbing;
-}
-
 /* TV IMAGE */
 
 #tvFrame{
     width:100%;
+    display:block;
+
     position:relative;
-    z-index:2;
+    z-index:1;
 
     pointer-events:none;
 
     filter:drop-shadow(0 10px 20px rgba(0,0,0,0.4));
 }
 
-/* VIDEO OVERLAY */
+/* VIDEO — NOW IN FRONT */
 
 #videoWrapper{
     position:absolute;
 
-    /* ADJUST THESE */
+    /* ADJUST THESE IF NEEDED */
+
     left:18%;
     top:16.5%;
     width:47%;
     height:41%;
 
-    border-radius:50%;
     overflow:hidden;
+    border-radius:50%;
 
-    z-index:5;
+    z-index:10;
 }
 
 #tvVideo{
     width:100%;
     height:100%;
+
     object-fit:cover;
 
     border-radius:50%;
@@ -101,7 +99,7 @@ body{
     cursor:pointer;
 }
 
-/* POWER */
+/* POWER BUTTON */
 
 #powerBtn{
     width:50px;
@@ -111,7 +109,7 @@ body{
     top:38%;
 }
 
-/* PLAY */
+/* PLAY BUTTON */
 
 #playBtn{
     width:50px;
@@ -121,9 +119,10 @@ body{
     top:50%;
 }
 
-/* FLOATING */
+/* FLOAT */
 
 @keyframes float{
+
     0%{
         transform:translate(-50%, -50%) translateY(0px);
     }
@@ -161,10 +160,10 @@ body{
 
 <div id="tvContainer">
 
-    <!-- TV IMAGE -->
-    <img src="TV.png" id="tvFrame">
+    <!-- TV -->
+    <img src="TV1.png" id="tvFrame">
 
-    <!-- VIDEO ON TOP -->
+    <!-- VIDEO IN FRONT -->
     <div id="videoWrapper">
 
         <video
@@ -180,7 +179,6 @@ body{
     </div>
 
     <!-- BUTTONS -->
-
     <div class="tvButton" id="powerBtn"></div>
     <div class="tvButton" id="playBtn"></div>
 
@@ -191,16 +189,17 @@ body{
 const tv = document.getElementById("tvContainer");
 const video = document.getElementById("tvVideo");
 
-/* -------------------- */
+/* ---------------- */
 /* DRAGGING */
-/* -------------------- */
+/* ---------------- */
 
-let isDragging = false;
-let offsetX, offsetY;
+let dragging = false;
+let offsetX = 0;
+let offsetY = 0;
 
 tv.addEventListener("mousedown", (e)=>{
 
-    isDragging = true;
+    dragging = true;
 
     offsetX = e.clientX - tv.offsetLeft;
     offsetY = e.clientY - tv.offsetTop;
@@ -210,7 +209,7 @@ tv.addEventListener("mousedown", (e)=>{
 
 document.addEventListener("mousemove", (e)=>{
 
-    if(!isDragging) return;
+    if(!dragging) return;
 
     tv.style.left = `${e.clientX - offsetX}px`;
     tv.style.top = `${e.clientY - offsetY}px`;
@@ -220,25 +219,23 @@ document.addEventListener("mousemove", (e)=>{
 
 document.addEventListener("mouseup", ()=>{
 
-    isDragging = false;
+    dragging = false;
 });
 
 /* TOUCH */
 
 tv.addEventListener("touchstart", (e)=>{
 
-    isDragging = true;
+    dragging = true;
 
     offsetX = e.touches[0].clientX - tv.offsetLeft;
     offsetY = e.touches[0].clientY - tv.offsetTop;
-
-    tv.style.animation = "none";
 
 }, { passive:true });
 
 document.addEventListener("touchmove", (e)=>{
 
-    if(!isDragging) return;
+    if(!dragging) return;
 
     tv.style.left = `${e.touches[0].clientX - offsetX}px`;
     tv.style.top = `${e.touches[0].clientY - offsetY}px`;
@@ -249,12 +246,12 @@ document.addEventListener("touchmove", (e)=>{
 
 document.addEventListener("touchend", ()=>{
 
-    isDragging = false;
+    dragging = false;
 });
 
-/* -------------------- */
+/* ---------------- */
 /* POWER BUTTON */
-/* -------------------- */
+/* ---------------- */
 
 const powerBtn = document.getElementById("powerBtn");
 
@@ -276,9 +273,9 @@ powerBtn.addEventListener("click", ()=>{
     }
 });
 
-/* -------------------- */
+/* ---------------- */
 /* PLAY / PAUSE */
-/* -------------------- */
+/* ---------------- */
 
 const playBtn = document.getElementById("playBtn");
 
