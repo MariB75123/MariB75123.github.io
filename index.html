@@ -45,43 +45,27 @@ body{
     animation:float 4s ease-in-out infinite;
 }
 
-/* TV IMAGE */
-
-#tvFrame{
-    width:100%;
-    display:block;
-
-    position:relative;
-    z-index:5;
-
-    pointer-events:none;
-
-    filter:drop-shadow(0 10px 20px rgba(0,0,0,0.4));
-}
-
 /* VIDEO SCREEN */
-/* EXACT SIZE + CENTERED INSIDE PURPLE CIRCLE */
+/* NOW ABOVE THE TV IMAGE */
 
 #videoWrapper{
     position:absolute;
 
+    /* EXACT SCREEN SIZE */
+
     width:236px;
     height:229px;
 
-    /* EXACT COORDINATES */
+    /* EXACT SCREEN POSITION */
 
     left:306px;
     top:211px;
 
-    /* KEEP VIDEO INSIDE CIRCLE */
-    border-radius:50%;
-
     overflow:hidden;
 
-    z-index:2;
+    border-radius:50%;
 
-    /* invisible helper layer */
-    background:transparent;
+    z-index:10;
 }
 
 /* VIDEO */
@@ -94,12 +78,28 @@ body{
 
     border-radius:50%;
 
-    /* prevents touching outer edge */
+    /* keep inside purple circle */
     transform:scale(0.88);
 
     filter:
         contrast(1.05)
         saturate(1.05);
+}
+
+/* TV IMAGE */
+/* NOW UNDER VIDEO */
+
+#tvFrame{
+    width:100%;
+    display:block;
+
+    position:relative;
+
+    z-index:5;
+
+    pointer-events:none;
+
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,0.4));
 }
 
 /* BUTTONS */
@@ -177,7 +177,7 @@ body{
 
 <div id="tvContainer">
 
-    <!-- VIDEO INSIDE TV SCREEN LAYER -->
+    <!-- VIDEO -->
     <div id="videoWrapper">
 
         <video
@@ -192,7 +192,7 @@ body{
 
     </div>
 
-    <!-- TV FRAME ABOVE VIDEO -->
+    <!-- TV -->
     <img src="TV2.png" id="tvFrame">
 
     <!-- BUTTONS -->
