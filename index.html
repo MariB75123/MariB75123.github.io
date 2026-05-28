@@ -2,38 +2,62 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Powerpuff Girls TV</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body {
+    width: 100%; height: 100%;
+  }
+
   body {
-    background: #0e0a12 url('https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/Wallpaper3.jpg') center center / cover no-repeat fixed;
+    background: #0e0a12;
     min-height: 100vh; min-height: 100dvh;
     overflow: hidden;
     font-family: 'DM Mono', monospace;
     cursor: none;
     user-select: none;
+    /* Background: on mobile use center/contain so the full image is visible;
+       on desktop use cover so it fills the screen. Handled below via JS class. */
   }
+
+  body.bg-cover::after {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      url('https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/Wallpaper3.jpg')
+      center center / cover no-repeat;
+    z-index: -2;
+  }
+  body.bg-contain::after {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      url('https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/Wallpaper3.jpg')
+      center center / contain no-repeat;
+    background-color: #1a0a22;
+    z-index: -2;
+  }
+
   body::before {
     content: '';
     position: fixed; inset: 0;
-    background: rgba(14,10,18,0.35);
+    background: rgba(14,10,18,0.28);
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
   }
 
-  /* ── CUSTOM CURSOR (desktop only) ── */
+  /* ── CUSTOM CURSOR (mouse only) ── */
   #cursor {
     position: fixed;
     top: 0; left: 0;
-    width: clamp(50px, 6vw, 90px);
-    height: clamp(50px, 6vw, 90px);
+    width: clamp(50px, 5vw, 85px);
+    height: clamp(50px, 5vw, 85px);
     pointer-events: none;
     z-index: 99999;
-    will-change: left, top;
-    display: none; /* shown via JS on non-touch */
+    display: none;
   }
   #cursor img {
     width: 100%; height: 100%;
@@ -41,89 +65,99 @@
     animation: cursor-glow 2s ease-in-out infinite;
   }
   @keyframes cursor-glow {
-    0%   { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff) drop-shadow(0 0 3px #fff); }
-    25%  { filter: drop-shadow(0 0 8px #aa44ff) drop-shadow(0 0 20px #aa44ff) drop-shadow(0 0 3px #fff); }
-    50%  { filter: drop-shadow(0 0 8px #ff44cc) drop-shadow(0 0 20px #ff44cc) drop-shadow(0 0 3px #fff); }
-    75%  { filter: drop-shadow(0 0 8px #aa44ff) drop-shadow(0 0 20px #aa44ff) drop-shadow(0 0 3px #fff); }
-    100% { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff) drop-shadow(0 0 3px #fff); }
+    0%   { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff); }
+    25%  { filter: drop-shadow(0 0 8px #aa44ff) drop-shadow(0 0 20px #aa44ff); }
+    50%  { filter: drop-shadow(0 0 8px #ff44cc) drop-shadow(0 0 20px #ff44cc); }
+    75%  { filter: drop-shadow(0 0 8px #aa44ff) drop-shadow(0 0 20px #aa44ff); }
+    100% { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff); }
   }
   #cursor.clicking img { transform: scale(0.85); transition: transform 0.08s; }
   body.has-mouse * { cursor: none !important; }
 
-  /* ── TV wrapper — fills the safe viewport, TV is centered inside ── */
+  /* ── STAGE: centers the TV, leaves breathing room top+bottom ── */
   #stage {
-    position: fixed; inset: 0;
+    position: fixed;
+    /* 
+      Top/bottom padding = 8% of viewport height each side.
+      This leaves the background visible above and below the TV on all screens.
+    */
+    top: 8vh; bottom: 8vh;
+    left: 0; right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
     z-index: 10;
-    pointer-events: none; /* clicks pass through to TV */
   }
 
   #tv {
     /*
-      Use the smaller of 90vw or 90vh-converted-to-width.
-      The SVG aspect ratio is 629.36 : 592.79 ≈ 1.062 : 1
-      So TV height ≈ width / 1.062.
-      We want height ≤ 90vh → width ≤ 90vh * 1.062
+      Fit inside the stage box (100% of stage width or height).
+      Stage height = 84vh. TV aspect ≈ 629/593 ≈ 1.061 wide:1 tall.
+      So max width from height constraint = 84vh * 1.061.
+      We take the smaller of 88vw or that.
     */
-    width: min(90vw, calc(90vh * 1.062));
+    width: min(88vw, calc(84vh * 1.061));
     max-width: 1100px;
     pointer-events: all;
-    filter: drop-shadow(0 30px 60px rgba(90,20,70,0.8))
-            drop-shadow(0 0 80px rgba(180,90,150,0.2));
+    filter:
+      drop-shadow(0 20px 50px rgba(90,20,70,0.8))
+      drop-shadow(0 0 70px rgba(180,90,150,0.2));
     transition: filter 0.3s;
-    /* dragging via JS will override position */
-    position: relative;
+    flex-shrink: 0;
   }
   #tv.playing {
-    filter: drop-shadow(0 30px 60px rgba(90,20,70,0.8))
-            drop-shadow(0 0 180px rgba(220,120,180,0.65));
+    filter:
+      drop-shadow(0 20px 50px rgba(90,20,70,0.8))
+      drop-shadow(0 0 160px rgba(220,120,180,0.6));
   }
   #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
 
-  /* ── UI text — clamp so it's readable on any screen ── */
+  /* ── UI labels ── */
   .hint {
     position: fixed;
-    bottom: clamp(14px, 3vh, 36px); left: 50%;
+    bottom: clamp(10px, 2.5vh, 30px); left: 50%;
     transform: translateX(-50%);
     color: rgba(255,220,240,0.75);
-    font-size: clamp(10px, 1.4vw, 16px);
-    letter-spacing: 0.18em;
+    font-size: clamp(9px, 1.3vw, 15px);
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     pointer-events: none;
     transition: opacity 0.6s;
     z-index: 100;
     white-space: nowrap;
+    text-shadow: 0 0 12px rgba(200,100,160,0.6);
   }
   .hint.hidden { opacity: 0; }
 
   #channel-tag {
     position: fixed;
-    top: clamp(14px, 2.5vh, 36px);
-    right: clamp(14px, 2.5vw, 48px);
+    top: clamp(10px, 2vh, 28px);
+    right: clamp(12px, 2vw, 40px);
     color: rgba(255,220,240,0.75);
-    font-size: clamp(10px, 1.4vw, 16px);
-    letter-spacing: 0.18em;
+    font-size: clamp(9px, 1.3vw, 15px);
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     pointer-events: none;
     transition: opacity 0.6s;
     z-index: 100;
     white-space: nowrap;
+    text-shadow: 0 0 12px rgba(200,100,160,0.6);
   }
   #channel-tag.hidden { opacity: 0; }
 
+  /* ── Volume bar ── */
   .volume-bar {
     position: fixed;
-    bottom: clamp(14px, 3vh, 36px); left: 50%;
+    bottom: clamp(10px, 2.5vh, 30px); left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: clamp(6px, 1vw, 14px);
-    background: rgba(20,8,32,0.92);
+    background: rgba(20,8,32,0.93);
     border: 1px solid rgba(180,90,150,0.35);
     border-radius: 30px;
-    padding: clamp(6px,1vh,12px) clamp(14px,2vw,28px);
+    padding: clamp(6px,1.2vh,12px) clamp(14px,2vw,26px);
     z-index: 200;
     opacity: 0;
     transition: opacity 0.4s;
@@ -131,14 +165,14 @@
   }
   .volume-bar.visible { opacity: 1; }
   .volume-bar label {
-    color: rgba(200,140,180,0.8);
-    font-size: clamp(10px, 1.2vw, 15px);
-    letter-spacing: 0.15em;
+    color: rgba(200,140,180,0.85);
+    font-size: clamp(9px, 1.1vw, 14px);
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
   .volume-bar input[type=range] {
     -webkit-appearance: none;
-    width: clamp(70px, 10vw, 140px);
+    width: clamp(65px, 9vw, 130px);
     height: 4px;
     border-radius: 2px;
     background: rgba(180,90,150,0.3);
@@ -146,25 +180,25 @@
   }
   .volume-bar input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: clamp(12px,1.4vw,18px); height: clamp(12px,1.4vw,18px);
+    width: clamp(12px,1.3vw,17px); height: clamp(12px,1.3vw,17px);
     border-radius: 50%;
     background: #e08cc8;
     box-shadow: 0 0 6px rgba(224,140,200,0.8);
   }
   .volume-bar input[type=range]::-moz-range-thumb {
-    width: clamp(12px,1.4vw,18px); height: clamp(12px,1.4vw,18px);
+    width: clamp(12px,1.3vw,17px); height: clamp(12px,1.3vw,17px);
     border-radius: 50%; background: #e08cc8; border: none;
   }
   .mute-btn {
     background: none; border: none;
-    color: rgba(200,140,180,0.8);
-    font-size: clamp(13px, 1.6vw, 20px);
+    color: rgba(200,140,180,0.85);
+    font-size: clamp(13px, 1.5vw, 19px);
     padding: 0; line-height: 1;
     transition: color 0.2s;
   }
   .mute-btn:hover { color: rgba(240,170,210,1); }
 
-  /* ── SVG element styles ── */
+  /* ── SVG styles ── */
   .stand-shape { fill: url(#grad-stand); stroke: #7c3d6a; stroke-width: 1.5; filter: url(#shadow-stand); }
   .case-ring   { fill: url(#grad-case);  stroke: #7c3d6a; stroke-width: 1.5; filter: url(#bevel-case); }
   .bezel-shape { fill: url(#grad-bezel); stroke: rgba(80,30,70,0.5); stroke-width: 1; filter: url(#inner-shadow-bezel); }
@@ -198,7 +232,6 @@
   <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.8"/>
 </div>
 
-<!-- stage centers the TV; TV can still be dragged freely -->
 <div id="stage">
   <div id="tv">
   <svg viewBox="0 0 629.36 592.79" xmlns="http://www.w3.org/2000/svg">
@@ -320,7 +353,22 @@
 </div>
 
 <script>
-// ── CURSOR (desktop/mouse only) ──
+// ── BACKGROUND: cover on landscape/desktop, contain on portrait mobile ──
+function setBackground() {
+  const portrait = window.innerHeight > window.innerWidth;
+  const mobile   = window.innerWidth <= 768;
+  if (portrait && mobile) {
+    document.body.classList.remove('bg-cover');
+    document.body.classList.add('bg-contain');
+  } else {
+    document.body.classList.remove('bg-contain');
+    document.body.classList.add('bg-cover');
+  }
+}
+setBackground();
+window.addEventListener('resize', setBackground);
+
+// ── CURSOR (mouse only) ──
 const cursor = document.getElementById('cursor');
 let hasMouse = false;
 document.addEventListener('mousemove', e => {
@@ -352,9 +400,6 @@ const volSlider   = document.getElementById('vol-slider');
 const muteBtn     = document.getElementById('mute-btn');
 
 let isPlaying = false, isMuted = false, volTimer = null;
-// Track whether user has dragged the TV away from center
-let isDragged = false;
-
 vid.volume = parseFloat(volSlider.value);
 
 volSlider.addEventListener('input', () => {
@@ -412,22 +457,18 @@ btnInner.addEventListener('click', togglePlay);
 btnBg.addEventListener('click', togglePlay);
 
 // ── DRAG ──
-// When dragging starts, pull TV out of flexbox stage into fixed positioning
-let dragging = false, startX, startY, origLeft, origTop;
-
-function getFixedRect() {
-  return tv.getBoundingClientRect();
-}
+let dragging = false, isDragged = false;
+let startX, startY, origLeft, origTop;
 
 function startDrag(clientX, clientY) {
   if (!isDragged) {
-    // First drag: convert from flex-centered to fixed position
-    const r = getFixedRect();
+    // Lift TV out of flexbox stage into body-level fixed positioning
+    const r = tv.getBoundingClientRect();
     isDragged = true;
     tv.style.position = 'fixed';
-    tv.style.left = r.left + 'px';
-    tv.style.top  = r.top  + 'px';
-    // Remove from stage flow
+    tv.style.left     = r.left + 'px';
+    tv.style.top      = r.top  + 'px';
+    tv.style.width    = r.width + 'px';
     document.body.appendChild(tv);
   }
   dragging = true;
@@ -465,9 +506,10 @@ window.addEventListener('touchmove', e => {
 }, { passive: false });
 window.addEventListener('touchend', () => { dragging = false; });
 
-// Re-center on resize if not dragged
+// Re-center on resize only if not manually dragged
 window.addEventListener('resize', () => {
-  if (!isDragged) return; // flexbox handles it automatically
+  if (isDragged) return;
+  setBackground();
 });
 
 setTimeout(() => hint.classList.add('hidden'), 5000);
