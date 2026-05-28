@@ -27,33 +27,26 @@
   #cursor {
     position: fixed;
     top: 0; left: 0;
-    width: 48px;
-    height: 48px;
+    width: 80px;
+    height: 80px;
     pointer-events: none;
     z-index: 99999;
-    transform: translate(0, 0);
     will-change: transform;
   }
   #cursor img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* animated neon glow cycling blue → pink → blue */
     animation: cursor-glow 2s ease-in-out infinite;
-    filter: drop-shadow(0 0 6px #00c8ff) drop-shadow(0 0 12px #00c8ff);
   }
   @keyframes cursor-glow {
-    0%   { filter: drop-shadow(0 0 5px #00c8ff) drop-shadow(0 0 14px #00c8ff) drop-shadow(0 0 2px #fff); }
-    25%  { filter: drop-shadow(0 0 5px #aa44ff) drop-shadow(0 0 14px #aa44ff) drop-shadow(0 0 2px #fff); }
-    50%  { filter: drop-shadow(0 0 5px #ff44cc) drop-shadow(0 0 14px #ff44cc) drop-shadow(0 0 2px #fff); }
-    75%  { filter: drop-shadow(0 0 5px #aa44ff) drop-shadow(0 0 14px #aa44ff) drop-shadow(0 0 2px #fff); }
-    100% { filter: drop-shadow(0 0 5px #00c8ff) drop-shadow(0 0 14px #00c8ff) drop-shadow(0 0 2px #fff); }
+    0%   { filter: drop-shadow(0 0 6px #00c8ff) drop-shadow(0 0 16px #00c8ff) drop-shadow(0 0 2px #fff); }
+    25%  { filter: drop-shadow(0 0 6px #aa44ff) drop-shadow(0 0 16px #aa44ff) drop-shadow(0 0 2px #fff); }
+    50%  { filter: drop-shadow(0 0 6px #ff44cc) drop-shadow(0 0 16px #ff44cc) drop-shadow(0 0 2px #fff); }
+    75%  { filter: drop-shadow(0 0 6px #aa44ff) drop-shadow(0 0 16px #aa44ff) drop-shadow(0 0 2px #fff); }
+    100% { filter: drop-shadow(0 0 6px #00c8ff) drop-shadow(0 0 16px #00c8ff) drop-shadow(0 0 2px #fff); }
   }
-  #cursor.clicking img {
-    transform: scale(0.88);
-    transition: transform 0.08s;
-  }
-
+  #cursor.clicking img { transform: scale(0.88); transition: transform 0.08s; }
   * { cursor: none !important; }
 
   .hint {
@@ -70,6 +63,7 @@
     white-space: nowrap;
   }
   .hint.hidden { opacity: 0; }
+
   .volume-bar {
     position: fixed;
     bottom: 60px; left: 50%;
@@ -120,19 +114,23 @@
     transition: color 0.2s;
   }
   .mute-btn:hover { color: rgba(240,170,210,1); }
+
+  /* ── TV: anchored to bottom centre ── */
   #tv {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    width: 680px;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 780px;
     z-index: 10;
     filter: drop-shadow(0 30px 70px rgba(90,20,70,0.75)) drop-shadow(0 0 90px rgba(180,90,150,0.2));
     transition: filter 0.3s;
   }
   #tv.playing {
-    filter: drop-shadow(0 30px 70px rgba(90,20,70,0.75)) drop-shadow(0 0 140px rgba(220,120,180,0.55));
+    filter: drop-shadow(0 30px 70px rgba(90,20,70,0.75)) drop-shadow(0 0 160px rgba(220,120,180,0.6));
   }
-  #tv svg { width: 100%; height: auto; overflow: visible; }
+  #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
+
   .stand-shape { fill: url(#grad-stand); stroke: #7c3d6a; stroke-width: 1.5; filter: url(#shadow-stand); }
   .case-ring   { fill: url(#grad-case);  stroke: #7c3d6a; stroke-width: 1.5; filter: url(#bevel-case); }
   .bezel-shape { fill: url(#grad-bezel); stroke: rgba(80,30,70,0.5); stroke-width: 1; filter: url(#inner-shadow-bezel); }
@@ -143,11 +141,13 @@
   .btn-inner.on { fill: url(#grad-btn-on); filter: drop-shadow(0 0 8px rgba(255,160,220,0.95)); }
   .screen-click { fill: transparent; }
   .glare-overlay { pointer-events: none; }
+
   @keyframes blink {
     0%,90%,100% { transform: scaleY(1); transform-origin: center; }
     95% { transform: scaleY(0.08); transform-origin: center; }
   }
   .idle-blink { animation: blink 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
   #channel-tag {
     position: fixed;
     top: 32px; right: 36px;
@@ -164,7 +164,6 @@
 </head>
 <body>
 
-<!-- CUSTOM CURSOR -->
 <div id="cursor">
   <img src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/Cursor.png" alt="" draggable="false"/>
 </div>
@@ -297,7 +296,7 @@
 </div>
 
 <script>
-// ── CUSTOM CURSOR ──
+// ── CURSOR ──
 const cursor = document.getElementById('cursor');
 document.addEventListener('mousemove', e => {
   cursor.style.left = e.clientX + 'px';
@@ -378,41 +377,47 @@ screenClick.addEventListener('click', togglePlay);
 btnInner.addEventListener('click', togglePlay);
 btnBg.addEventListener('click', togglePlay);
 
-// ── DRAG ──
-let dragging = false, startX, startY;
-let posX = window.innerWidth / 2, posY = window.innerHeight / 2;
+// ── DRAG (horizontal only, keeps bottom anchored to floor) ──
+let dragging = false, startX, startMouseX;
+let posX = 50; // percent from left
 
-function setPos(x, y) {
-  posX = x; posY = y;
-  tv.style.left = x + 'px';
-  tv.style.top  = y + 'px';
-  tv.style.transform = 'translate(-50%,-50%)';
+function setPosX(pct) {
+  posX = Math.max(10, Math.min(90, pct));
+  tv.style.left      = posX + '%';
+  tv.style.transform = 'translateX(-50%)';
 }
-setPos(posX, posY);
+setPosX(posX);
 
 tv.addEventListener('mousedown', e => {
   if ([screenClick, btnInner, btnBg].includes(e.target)) return;
   dragging = true;
-  startX = e.clientX - posX; startY = e.clientY - posY;
+  startMouseX = e.clientX;
+  startX = posX;
   e.preventDefault();
 });
 window.addEventListener('mousemove', e => {
   if (!dragging) return;
-  setPos(e.clientX - startX, e.clientY - startY);
+  const dx = e.clientX - startMouseX;
+  const dxPct = (dx / window.innerWidth) * 100;
+  setPosX(startX + dxPct);
   hint.classList.add('hidden');
 });
 window.addEventListener('mouseup', () => { dragging = false; });
 
 tv.addEventListener('touchstart', e => {
   if ([screenClick, btnInner, btnBg].includes(e.target)) return;
-  const t = e.touches[0]; dragging = true;
-  startX = t.clientX - posX; startY = t.clientY - posY;
+  const t = e.touches[0];
+  dragging = true;
+  startMouseX = t.clientX;
+  startX = posX;
   e.preventDefault();
 }, { passive: false });
 window.addEventListener('touchmove', e => {
   if (!dragging) return;
   const t = e.touches[0];
-  setPos(t.clientX - startX, t.clientY - startY);
+  const dx = t.clientX - startMouseX;
+  const dxPct = (dx / window.innerWidth) * 100;
+  setPosX(startX + dxPct);
   e.preventDefault();
 }, { passive: false });
 window.addEventListener('touchend', () => { dragging = false; });
