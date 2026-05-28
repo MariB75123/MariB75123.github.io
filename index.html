@@ -7,9 +7,10 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: #0e0a12 url('https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/Wallpaper3.jpg') center center / cover no-repeat fixed;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     overflow: hidden;
     font-family: 'DM Mono', monospace;
     cursor: none;
@@ -18,24 +19,24 @@
   body::before {
     content: '';
     position: fixed; inset: 0;
-    background: rgba(14, 10, 18, 0.35);
+    background: rgba(14,10,18,0.35);
     pointer-events: none;
     z-index: 0;
   }
 
-  /* ── CUSTOM CURSOR ── */
+  /* ── CUSTOM CURSOR (desktop only) ── */
   #cursor {
     position: fixed;
     top: 0; left: 0;
-    width: 100px;
-    height: 100px;
+    width: clamp(50px, 6vw, 90px);
+    height: clamp(50px, 6vw, 90px);
     pointer-events: none;
     z-index: 99999;
     will-change: left, top;
+    display: none; /* shown via JS on non-touch */
   }
   #cursor img {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: contain;
     animation: cursor-glow 2s ease-in-out infinite;
   }
@@ -47,15 +48,48 @@
     100% { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff) drop-shadow(0 0 3px #fff); }
   }
   #cursor.clicking img { transform: scale(0.85); transition: transform 0.08s; }
-  * { cursor: none !important; }
+  body.has-mouse * { cursor: none !important; }
 
+  /* ── TV wrapper — fills the safe viewport, TV is centered inside ── */
+  #stage {
+    position: fixed; inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none; /* clicks pass through to TV */
+  }
+
+  #tv {
+    /*
+      Use the smaller of 90vw or 90vh-converted-to-width.
+      The SVG aspect ratio is 629.36 : 592.79 ≈ 1.062 : 1
+      So TV height ≈ width / 1.062.
+      We want height ≤ 90vh → width ≤ 90vh * 1.062
+    */
+    width: min(90vw, calc(90vh * 1.062));
+    max-width: 1100px;
+    pointer-events: all;
+    filter: drop-shadow(0 30px 60px rgba(90,20,70,0.8))
+            drop-shadow(0 0 80px rgba(180,90,150,0.2));
+    transition: filter 0.3s;
+    /* dragging via JS will override position */
+    position: relative;
+  }
+  #tv.playing {
+    filter: drop-shadow(0 30px 60px rgba(90,20,70,0.8))
+            drop-shadow(0 0 180px rgba(220,120,180,0.65));
+  }
+  #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
+
+  /* ── UI text — clamp so it's readable on any screen ── */
   .hint {
     position: fixed;
-    bottom: 28px; left: 50%;
+    bottom: clamp(14px, 3vh, 36px); left: 50%;
     transform: translateX(-50%);
-    color: rgba(255,220,240,0.6);
-    font-size: 11px;
-    letter-spacing: 0.2em;
+    color: rgba(255,220,240,0.75);
+    font-size: clamp(10px, 1.4vw, 16px);
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     pointer-events: none;
     transition: opacity 0.6s;
@@ -64,17 +98,32 @@
   }
   .hint.hidden { opacity: 0; }
 
+  #channel-tag {
+    position: fixed;
+    top: clamp(14px, 2.5vh, 36px);
+    right: clamp(14px, 2.5vw, 48px);
+    color: rgba(255,220,240,0.75);
+    font-size: clamp(10px, 1.4vw, 16px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    pointer-events: none;
+    transition: opacity 0.6s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  #channel-tag.hidden { opacity: 0; }
+
   .volume-bar {
     position: fixed;
-    bottom: 28px; left: 50%;
+    bottom: clamp(14px, 3vh, 36px); left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: clamp(6px, 1vw, 14px);
     background: rgba(20,8,32,0.92);
     border: 1px solid rgba(180,90,150,0.35);
     border-radius: 30px;
-    padding: 8px 20px;
+    padding: clamp(6px,1vh,12px) clamp(14px,2vw,28px);
     z-index: 200;
     opacity: 0;
     transition: opacity 0.4s;
@@ -82,53 +131,40 @@
   }
   .volume-bar.visible { opacity: 1; }
   .volume-bar label {
-    color: rgba(200,140,180,0.7);
-    font-size: 10px;
+    color: rgba(200,140,180,0.8);
+    font-size: clamp(10px, 1.2vw, 15px);
     letter-spacing: 0.15em;
     text-transform: uppercase;
   }
   .volume-bar input[type=range] {
     -webkit-appearance: none;
-    width: 110px; height: 4px;
+    width: clamp(70px, 10vw, 140px);
+    height: 4px;
     border-radius: 2px;
     background: rgba(180,90,150,0.3);
     outline: none;
   }
   .volume-bar input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 14px; height: 14px;
+    width: clamp(12px,1.4vw,18px); height: clamp(12px,1.4vw,18px);
     border-radius: 50%;
     background: #e08cc8;
-    box-shadow: 0 0 6px rgba(224,140,200,0.7);
+    box-shadow: 0 0 6px rgba(224,140,200,0.8);
   }
   .volume-bar input[type=range]::-moz-range-thumb {
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: #e08cc8;
-    border: none;
+    width: clamp(12px,1.4vw,18px); height: clamp(12px,1.4vw,18px);
+    border-radius: 50%; background: #e08cc8; border: none;
   }
   .mute-btn {
     background: none; border: none;
-    color: rgba(200,140,180,0.7);
-    font-size: 14px; padding: 0; line-height: 1;
+    color: rgba(200,140,180,0.8);
+    font-size: clamp(13px, 1.6vw, 20px);
+    padding: 0; line-height: 1;
     transition: color 0.2s;
   }
   .mute-btn:hover { color: rgba(240,170,210,1); }
 
-  /* ── TV WIDGET ── */
-  #tv {
-    position: fixed;
-    /* default pos set by JS */
-    width: 900px;
-    z-index: 10;
-    filter: drop-shadow(0 40px 80px rgba(90,20,70,0.8)) drop-shadow(0 0 100px rgba(180,90,150,0.25));
-    transition: filter 0.3s;
-  }
-  #tv.playing {
-    filter: drop-shadow(0 40px 80px rgba(90,20,70,0.8)) drop-shadow(0 0 180px rgba(220,120,180,0.65));
-  }
-  #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
-
+  /* ── SVG element styles ── */
   .stand-shape { fill: url(#grad-stand); stroke: #7c3d6a; stroke-width: 1.5; filter: url(#shadow-stand); }
   .case-ring   { fill: url(#grad-case);  stroke: #7c3d6a; stroke-width: 1.5; filter: url(#bevel-case); }
   .bezel-shape { fill: url(#grad-bezel); stroke: rgba(80,30,70,0.5); stroke-width: 1; filter: url(#inner-shadow-bezel); }
@@ -141,23 +177,10 @@
   .glare-overlay { pointer-events: none; }
 
   @keyframes blink {
-    0%,90%,100% { transform: scaleY(1); transform-origin: center; }
-    95% { transform: scaleY(0.08); transform-origin: center; }
+    0%,90%,100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.08); }
   }
   .idle-blink { animation: blink 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-
-  #channel-tag {
-    position: fixed;
-    top: 32px; right: 36px;
-    color: rgba(255,220,240,0.6);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    pointer-events: none;
-    transition: opacity 0.6s;
-    z-index: 100;
-  }
-  #channel-tag.hidden { opacity: 0; }
 </style>
 </head>
 <body>
@@ -175,136 +198,146 @@
   <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.8"/>
 </div>
 
-<div id="tv">
-<svg viewBox="0 0 629.36 592.79" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <filter id="bevel-case" x="-10%" y="-10%" width="120%" height="120%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
-      <feOffset in="SourceAlpha" dx="-4" dy="-5" result="offsetBlur"/>
-      <feFlood flood-color="#f5c0e0" flood-opacity="0.45" result="highlight"/>
-      <feComposite in="highlight" in2="offsetBlur" operator="in" result="highlightComp"/>
-      <feOffset in="SourceAlpha" dx="5" dy="6" result="shadowOffset"/>
-      <feFlood flood-color="#5a2050" flood-opacity="0.65" result="shadowColor"/>
-      <feComposite in="shadowColor" in2="shadowOffset" operator="in" result="shadow"/>
-      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="highlightComp"/></feMerge>
-    </filter>
-    <filter id="inner-shadow-bezel" x="-8%" y="-8%" width="116%" height="116%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
-      <feOffset dx="0" dy="6" result="offset"/>
-      <feFlood flood-color="#2a0830" flood-opacity="0.6" result="color"/>
-      <feComposite in="color" in2="offset" operator="in" result="shadow"/>
-      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="shadow-screen" x="-15%" y="-15%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#1a0520" flood-opacity="0.95"/>
-    </filter>
-    <filter id="shadow-stand" x="-15%" y="-15%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#3a1040" flood-opacity="0.5"/>
-    </filter>
-    <filter id="shadow-btn" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2a0830" flood-opacity="0.7"/>
-    </filter>
-    <radialGradient id="grad-case" cx="42%" cy="38%" r="58%" fx="38%" fy="32%">
-      <stop offset="0%"   stop-color="#f0c4de"/>
-      <stop offset="40%"  stop-color="#d888b8"/>
-      <stop offset="75%"  stop-color="#b86090"/>
-      <stop offset="100%" stop-color="#8a3868"/>
-    </radialGradient>
-    <radialGradient id="grad-bezel" cx="50%" cy="45%" r="55%" fx="45%" fy="38%">
-      <stop offset="0%"   stop-color="#c878a8"/>
-      <stop offset="35%"  stop-color="#a05888"/>
-      <stop offset="70%"  stop-color="#7a3868"/>
-      <stop offset="100%" stop-color="#5a2850"/>
-    </radialGradient>
-    <radialGradient id="grad-screen" cx="40%" cy="35%" r="60%" fx="35%" fy="30%">
-      <stop offset="0%"   stop-color="#7a4882"/>
-      <stop offset="30%"  stop-color="#5a2d65"/>
-      <stop offset="65%"  stop-color="#3d1c4a"/>
-      <stop offset="100%" stop-color="#220d30"/>
-    </radialGradient>
-    <linearGradient id="grad-stand" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%"   stop-color="#c060a0"/>
-      <stop offset="30%"  stop-color="#e8a8cc"/>
-      <stop offset="70%"  stop-color="#e8a8cc"/>
-      <stop offset="100%" stop-color="#a84880"/>
-    </linearGradient>
-    <radialGradient id="grad-btn-bg" cx="50%" cy="40%" r="60%">
-      <stop offset="0%"   stop-color="#d890c0"/>
-      <stop offset="100%" stop-color="#904878"/>
-    </radialGradient>
-    <radialGradient id="grad-btn" cx="40%" cy="35%" r="65%">
-      <stop offset="0%"   stop-color="#c078a8"/>
-      <stop offset="100%" stop-color="#6a3060"/>
-    </radialGradient>
-    <radialGradient id="grad-btn-on" cx="40%" cy="35%" r="65%">
-      <stop offset="0%"   stop-color="#ffd0f0"/>
-      <stop offset="50%"  stop-color="#ff90d0"/>
-      <stop offset="100%" stop-color="#cc50a0"/>
-    </radialGradient>
-    <radialGradient id="grad-glare" cx="28%" cy="22%" r="58%">
-      <stop offset="0%"   stop-color="white" stop-opacity="0.28"/>
-      <stop offset="60%"  stop-color="white" stop-opacity="0.06"/>
-      <stop offset="100%" stop-color="white" stop-opacity="0"/>
-    </radialGradient>
-    <clipPath id="clip-screen">
-      <circle cx="305.41" cy="236.55" r="101.78"/>
-    </clipPath>
-    <pattern id="scanlines" x="0" y="0" width="1" height="3" patternUnits="userSpaceOnUse">
-      <rect x="0" y="0" width="1" height="2.5" fill="transparent"/>
-      <rect x="0" y="2.5" width="1" height="0.5" fill="rgba(0,0,0,0.12)"/>
-    </pattern>
-  </defs>
+<!-- stage centers the TV; TV can still be dragged freely -->
+<div id="stage">
+  <div id="tv">
+  <svg viewBox="0 0 629.36 592.79" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="bevel-case" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+        <feOffset in="SourceAlpha" dx="-4" dy="-5" result="offsetBlur"/>
+        <feFlood flood-color="#f5c0e0" flood-opacity="0.45" result="highlight"/>
+        <feComposite in="highlight" in2="offsetBlur" operator="in" result="highlightComp"/>
+        <feOffset in="SourceAlpha" dx="5" dy="6" result="shadowOffset"/>
+        <feFlood flood-color="#5a2050" flood-opacity="0.65" result="shadowColor"/>
+        <feComposite in="shadowColor" in2="shadowOffset" operator="in" result="shadow"/>
+        <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="highlightComp"/></feMerge>
+      </filter>
+      <filter id="inner-shadow-bezel" x="-8%" y="-8%" width="116%" height="116%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+        <feOffset dx="0" dy="6" result="offset"/>
+        <feFlood flood-color="#2a0830" flood-opacity="0.6" result="color"/>
+        <feComposite in="color" in2="offset" operator="in" result="shadow"/>
+        <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="shadow-screen" x="-15%" y="-15%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#1a0520" flood-opacity="0.95"/>
+      </filter>
+      <filter id="shadow-stand" x="-15%" y="-15%" width="130%" height="130%">
+        <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#3a1040" flood-opacity="0.5"/>
+      </filter>
+      <filter id="shadow-btn" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2a0830" flood-opacity="0.7"/>
+      </filter>
+      <radialGradient id="grad-case" cx="42%" cy="38%" r="58%" fx="38%" fy="32%">
+        <stop offset="0%"   stop-color="#f0c4de"/>
+        <stop offset="40%"  stop-color="#d888b8"/>
+        <stop offset="75%"  stop-color="#b86090"/>
+        <stop offset="100%" stop-color="#8a3868"/>
+      </radialGradient>
+      <radialGradient id="grad-bezel" cx="50%" cy="45%" r="55%" fx="45%" fy="38%">
+        <stop offset="0%"   stop-color="#c878a8"/>
+        <stop offset="35%"  stop-color="#a05888"/>
+        <stop offset="70%"  stop-color="#7a3868"/>
+        <stop offset="100%" stop-color="#5a2850"/>
+      </radialGradient>
+      <radialGradient id="grad-screen" cx="40%" cy="35%" r="60%" fx="35%" fy="30%">
+        <stop offset="0%"   stop-color="#7a4882"/>
+        <stop offset="30%"  stop-color="#5a2d65"/>
+        <stop offset="65%"  stop-color="#3d1c4a"/>
+        <stop offset="100%" stop-color="#220d30"/>
+      </radialGradient>
+      <linearGradient id="grad-stand" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   stop-color="#c060a0"/>
+        <stop offset="30%"  stop-color="#e8a8cc"/>
+        <stop offset="70%"  stop-color="#e8a8cc"/>
+        <stop offset="100%" stop-color="#a84880"/>
+      </linearGradient>
+      <radialGradient id="grad-btn-bg" cx="50%" cy="40%" r="60%">
+        <stop offset="0%"   stop-color="#d890c0"/>
+        <stop offset="100%" stop-color="#904878"/>
+      </radialGradient>
+      <radialGradient id="grad-btn" cx="40%" cy="35%" r="65%">
+        <stop offset="0%"   stop-color="#c078a8"/>
+        <stop offset="100%" stop-color="#6a3060"/>
+      </radialGradient>
+      <radialGradient id="grad-btn-on" cx="40%" cy="35%" r="65%">
+        <stop offset="0%"   stop-color="#ffd0f0"/>
+        <stop offset="50%"  stop-color="#ff90d0"/>
+        <stop offset="100%" stop-color="#cc50a0"/>
+      </radialGradient>
+      <radialGradient id="grad-glare" cx="28%" cy="22%" r="58%">
+        <stop offset="0%"   stop-color="white" stop-opacity="0.28"/>
+        <stop offset="60%"  stop-color="white" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="clip-screen">
+        <circle cx="305.41" cy="236.55" r="101.78"/>
+      </clipPath>
+      <pattern id="scanlines" x="0" y="0" width="1" height="3" patternUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="1" height="2.5" fill="transparent"/>
+        <rect x="0" y="2.5" width="1" height="0.5" fill="rgba(0,0,0,0.12)"/>
+      </pattern>
+    </defs>
 
-  <path class="stand-shape" d="M152.65,544.53c41.39-24.39,78.41-58.84,96.82-105.92,0,0,26.43,6.31,55.94,7.26s62.23-8.64,62.23-8.64v1.38c.94,20.2,22.87,42.05,35.25,56.19,15.77,18.02,34.31,39.26,56.35,49.73h-.02c0,22.02-70.65,39.85-157.95,39.85-82.15,0-148.62-17.83-148.62-39.85Z"/>
-  <circle class="case-ring" cx="306.87" cy="229.31" r="216.56"/>
-  <ellipse class="bezel-shape" cx="305.41" cy="236.55" rx="186.13" ry="209.32"/>
-  <path class="deco-line" d="M385.52,176.54c43.24,0,78.24-22.38,78.24-50.03"/>
-  <path class="deco-line" d="M150.03,121.25c1.59,30.77,33.82,55.29,73.42,55.29"/>
-  <path class="deco-line" d="M368.56,318.64c9.83,31.82,63.1,37.15,89.84,37.15"/>
-  <path class="deco-line" d="M237.56,312.41c0,21.73-39.18,39.32-87.6,39.32"/>
-  <circle class="screen-bg" cx="305.41" cy="236.55" r="101.78" filter="url(#shadow-screen)"/>
+    <path class="stand-shape" d="M152.65,544.53c41.39-24.39,78.41-58.84,96.82-105.92,0,0,26.43,6.31,55.94,7.26s62.23-8.64,62.23-8.64v1.38c.94,20.2,22.87,42.05,35.25,56.19,15.77,18.02,34.31,39.26,56.35,49.73h-.02c0,22.02-70.65,39.85-157.95,39.85-82.15,0-148.62-17.83-148.62-39.85Z"/>
+    <circle class="case-ring" cx="306.87" cy="229.31" r="216.56"/>
+    <ellipse class="bezel-shape" cx="305.41" cy="236.55" rx="186.13" ry="209.32"/>
+    <path class="deco-line" d="M385.52,176.54c43.24,0,78.24-22.38,78.24-50.03"/>
+    <path class="deco-line" d="M150.03,121.25c1.59,30.77,33.82,55.29,73.42,55.29"/>
+    <path class="deco-line" d="M368.56,318.64c9.83,31.82,63.1,37.15,89.84,37.15"/>
+    <path class="deco-line" d="M237.56,312.41c0,21.73-39.18,39.32-87.6,39.32"/>
+    <circle class="screen-bg" cx="305.41" cy="236.55" r="101.78" filter="url(#shadow-screen)"/>
 
-  <foreignObject id="video-fo" x="203.63" y="134.77" width="203.56" height="203.56"
-    clip-path="url(#clip-screen)" opacity="0" style="transition:opacity 0.6s;">
-    <video id="vid" xmlns="http://www.w3.org/1999/xhtml"
-      style="width:100%;height:100%;object-fit:cover;display:block;"
-      loop playsinline preload="auto" crossorigin="anonymous">
-      <source src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/The%20Powerpuff%20Girls.mp4" type="video/mp4"/>
-    </video>
-  </foreignObject>
+    <foreignObject id="video-fo" x="203.63" y="134.77" width="203.56" height="203.56"
+      clip-path="url(#clip-screen)" opacity="0" style="transition:opacity 0.6s;">
+      <video id="vid" xmlns="http://www.w3.org/1999/xhtml"
+        style="width:100%;height:100%;object-fit:cover;display:block;"
+        loop playsinline preload="auto" crossorigin="anonymous">
+        <source src="https://raw.githubusercontent.com/MariB75123/MariB75123.github.io/main/The%20Powerpuff%20Girls.mp4" type="video/mp4"/>
+      </video>
+    </foreignObject>
 
-  <g id="idle-group" clip-path="url(#clip-screen)" style="transition:opacity 0.6s;">
-    <circle cx="305.41" cy="236.55" r="101.78" fill="url(#grad-screen)"/>
-    <circle class="idle-blink" cx="305.41" cy="230" r="20" fill="none" stroke="rgba(200,120,170,0.3)" stroke-width="1.5"/>
-    <circle class="idle-blink" cx="305.41" cy="230" r="9" fill="rgba(180,100,150,0.18)"/>
-    <text x="305.41" y="266" text-anchor="middle"
-      font-family="'DM Mono',monospace" font-size="9" letter-spacing="3"
-      fill="rgba(200,130,170,0.4)">SIGNAAL PUUDUB</text>
-  </g>
+    <g id="idle-group" clip-path="url(#clip-screen)" style="transition:opacity 0.6s;">
+      <circle cx="305.41" cy="236.55" r="101.78" fill="url(#grad-screen)"/>
+      <circle class="idle-blink" cx="305.41" cy="230" r="20" fill="none" stroke="rgba(200,120,170,0.3)" stroke-width="1.5"/>
+      <circle class="idle-blink" cx="305.41" cy="230" r="9" fill="rgba(180,100,150,0.18)"/>
+      <text x="305.41" y="266" text-anchor="middle"
+        font-family="'DM Mono',monospace" font-size="9" letter-spacing="3"
+        fill="rgba(200,130,170,0.4)">SIGNAAL PUUDUB</text>
+    </g>
 
-  <circle id="scanlines-circle" cx="305.41" cy="236.55" r="101.78"
-    fill="url(#scanlines)" clip-path="url(#clip-screen)"
-    opacity="0" style="transition:opacity 0.6s; pointer-events:none;"/>
-  <circle class="glare-overlay" cx="305.41" cy="236.55" r="101.78"
-    fill="url(#grad-glare)" clip-path="url(#clip-screen)"/>
-  <circle class="screen-click" id="screen-click" cx="305.41" cy="236.55" r="101.78"/>
-  <ellipse class="btn-bg" cx="306.87" cy="472.68" rx="22.24" ry="15.41"/>
-  <ellipse class="btn-inner" id="btn-inner" cx="306.87" cy="472.68" rx="15.29" ry="10.6"/>
-</svg>
+    <circle id="scanlines-circle" cx="305.41" cy="236.55" r="101.78"
+      fill="url(#scanlines)" clip-path="url(#clip-screen)"
+      opacity="0" style="transition:opacity 0.6s; pointer-events:none;"/>
+    <circle class="glare-overlay" cx="305.41" cy="236.55" r="101.78"
+      fill="url(#grad-glare)" clip-path="url(#clip-screen)"/>
+    <circle class="screen-click" id="screen-click" cx="305.41" cy="236.55" r="101.78"/>
+    <ellipse class="btn-bg" cx="306.87" cy="472.68" rx="22.24" ry="15.41"/>
+    <ellipse class="btn-inner" id="btn-inner" cx="306.87" cy="472.68" rx="15.29" ry="10.6"/>
+  </svg>
+  </div>
 </div>
 
 <script>
-// ── CURSOR ──
+// ── CURSOR (desktop/mouse only) ──
 const cursor = document.getElementById('cursor');
+let hasMouse = false;
 document.addEventListener('mousemove', e => {
+  if (!hasMouse) {
+    hasMouse = true;
+    cursor.style.display = 'block';
+    document.body.classList.add('has-mouse');
+  }
   cursor.style.left = e.clientX + 'px';
   cursor.style.top  = e.clientY + 'px';
-});
+}, { passive: true });
 document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
 document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
 
 // ── TV LOGIC ──
 const tv          = document.getElementById('tv');
+const stage       = document.getElementById('stage');
 const screenClick = document.getElementById('screen-click');
 const btnInner    = document.getElementById('btn-inner');
 const btnBg       = tv.querySelector('.btn-bg');
@@ -318,20 +351,10 @@ const volBar      = document.getElementById('vol-bar');
 const volSlider   = document.getElementById('vol-slider');
 const muteBtn     = document.getElementById('mute-btn');
 
-const TV_W = 900;
-
-// Place TV so the bottom of the stand sits ~60px above the bottom of the screen
-function initPos() {
-  const tvH = tv.getBoundingClientRect().height || (TV_W * 592.79 / 629.36);
-  const x = (window.innerWidth  - TV_W) / 2;
-  const y = window.innerHeight - tvH - 60;
-  tv.style.left = x + 'px';
-  tv.style.top  = y + 'px';
-}
-// Run after first paint so height is available
-requestAnimationFrame(() => { requestAnimationFrame(initPos); });
-
 let isPlaying = false, isMuted = false, volTimer = null;
+// Track whether user has dragged the TV away from center
+let isDragged = false;
+
 vid.volume = parseFloat(volSlider.value);
 
 volSlider.addEventListener('input', () => {
@@ -365,8 +388,8 @@ function togglePlay() {
         vid.play().then(() => setTimeout(() => { vid.muted = false; }, 300)).catch(() => {});
       });
     }
-    videoFO.style.opacity   = '1';
-    idleGroup.style.opacity = '0';
+    videoFO.style.opacity     = '1';
+    idleGroup.style.opacity   = '0';
     scanlinesEl.style.opacity = '0.9';
     btnInner.classList.add('on');
     tv.classList.add('playing');
@@ -374,8 +397,8 @@ function togglePlay() {
     showVolBar();
   } else {
     vid.pause();
-    videoFO.style.opacity   = '0';
-    idleGroup.style.opacity = '1';
+    videoFO.style.opacity     = '0';
+    idleGroup.style.opacity   = '1';
     scanlinesEl.style.opacity = '0';
     btnInner.classList.remove('on');
     tv.classList.remove('playing');
@@ -388,16 +411,35 @@ screenClick.addEventListener('click', togglePlay);
 btnInner.addEventListener('click', togglePlay);
 btnBg.addEventListener('click', togglePlay);
 
-// ── DRAG — free in all directions ──
+// ── DRAG ──
+// When dragging starts, pull TV out of flexbox stage into fixed positioning
 let dragging = false, startX, startY, origLeft, origTop;
+
+function getFixedRect() {
+  return tv.getBoundingClientRect();
+}
+
+function startDrag(clientX, clientY) {
+  if (!isDragged) {
+    // First drag: convert from flex-centered to fixed position
+    const r = getFixedRect();
+    isDragged = true;
+    tv.style.position = 'fixed';
+    tv.style.left = r.left + 'px';
+    tv.style.top  = r.top  + 'px';
+    // Remove from stage flow
+    document.body.appendChild(tv);
+  }
+  dragging = true;
+  startX   = clientX;
+  startY   = clientY;
+  origLeft = parseFloat(tv.style.left) || 0;
+  origTop  = parseFloat(tv.style.top)  || 0;
+}
 
 tv.addEventListener('mousedown', e => {
   if ([screenClick, btnInner, btnBg].includes(e.target)) return;
-  dragging = true;
-  startX   = e.clientX;
-  startY   = e.clientY;
-  origLeft = parseInt(tv.style.left) || 0;
-  origTop  = parseInt(tv.style.top)  || 0;
+  startDrag(e.clientX, e.clientY);
   e.preventDefault();
 });
 window.addEventListener('mousemove', e => {
@@ -411,11 +453,7 @@ window.addEventListener('mouseup', () => { dragging = false; });
 tv.addEventListener('touchstart', e => {
   if ([screenClick, btnInner, btnBg].includes(e.target)) return;
   const t = e.touches[0];
-  dragging = true;
-  startX   = t.clientX;
-  startY   = t.clientY;
-  origLeft = parseInt(tv.style.left) || 0;
-  origTop  = parseInt(tv.style.top)  || 0;
+  startDrag(t.clientX, t.clientY);
   e.preventDefault();
 }, { passive: false });
 window.addEventListener('touchmove', e => {
@@ -426,6 +464,11 @@ window.addEventListener('touchmove', e => {
   e.preventDefault();
 }, { passive: false });
 window.addEventListener('touchend', () => { dragging = false; });
+
+// Re-center on resize if not dragged
+window.addEventListener('resize', () => {
+  if (!isDragged) return; // flexbox handles it automatically
+});
 
 setTimeout(() => hint.classList.add('hidden'), 5000);
 </script>
