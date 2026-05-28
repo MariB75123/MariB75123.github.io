@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Powerpuff Girls TV</title>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,7 +20,6 @@
     overflow: hidden;
     font-family: 'DM Mono', monospace;
     user-select: none;
-    /* default: no custom cursor until mouse detected */
     cursor: auto;
   }
   body.has-mouse { cursor: none; }
@@ -30,7 +33,6 @@
     z-index: -1;
   }
 
-  /* ── CUSTOM CURSOR — hidden until real mouse move detected ── */
   #cursor {
     position: fixed;
     top: 0; left: 0;
@@ -38,8 +40,8 @@
     height: clamp(50px, 5vw, 85px);
     pointer-events: none;
     z-index: 99999;
-    display: none; /* stays hidden on touch devices */
-    transform: translate(-8px, -8px); /* hotspot offset */
+    display: none;
+    transform: translate(-8px, -8px);
   }
   #cursor img {
     width: 100%; height: 100%;
@@ -55,7 +57,6 @@
   }
   #cursor.clicking img { transform: scale(0.85); transition: transform 0.08s; }
 
-  /* ── STAGE ── */
   #stage {
     position: fixed;
     top: 8vh; bottom: 8vh;
@@ -84,7 +85,6 @@
   }
   #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
 
-  /* ── UI labels ── */
   .hint {
     position: fixed;
     bottom: clamp(10px, 2.5vh, 30px); left: 50%;
@@ -168,7 +168,6 @@
   }
   .mute-btn:hover { color: rgba(240,170,210,1); }
 
-  /* ── SVG styles ── */
   .stand-shape { fill: url(#grad-stand); stroke: #7c3d6a; stroke-width: 1.5; filter: url(#shadow-stand); }
   .case-ring   { fill: url(#grad-case);  stroke: #7c3d6a; stroke-width: 1.5; filter: url(#bevel-case); }
   .bezel-shape { fill: url(#grad-bezel); stroke: rgba(80,30,70,0.5); stroke-width: 1; filter: url(#inner-shadow-bezel); }
@@ -323,16 +322,13 @@
 </div>
 
 <script>
-// ── CURSOR: only show on real mouse devices, never on touch ──
 const cursor = document.getElementById('cursor');
 let hasMouse = false;
 let touchActive = false;
 
-// If a touch ever fires, mark as touch device permanently
 document.addEventListener('touchstart', () => { touchActive = true; }, { passive: true, once: true });
 
 document.addEventListener('mousemove', e => {
-  // Ignore if touch device triggered a fake mousemove
   if (touchActive) return;
   if (!hasMouse) {
     hasMouse = true;
@@ -345,7 +341,6 @@ document.addEventListener('mousemove', e => {
 document.addEventListener('mousedown', () => { if (!touchActive) cursor.classList.add('clicking'); });
 document.addEventListener('mouseup',   () => { cursor.classList.remove('clicking'); });
 
-// ── TV LOGIC ──
 const tv          = document.getElementById('tv');
 const screenClick = document.getElementById('screen-click');
 const btnInner    = document.getElementById('btn-inner');
@@ -417,7 +412,6 @@ screenClick.addEventListener('click', togglePlay);
 btnInner.addEventListener('click', togglePlay);
 btnBg.addEventListener('click', togglePlay);
 
-// ── DRAG ──
 let dragging = false, isDragged = false;
 let startX, startY, origLeft, origTop;
 
