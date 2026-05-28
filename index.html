@@ -92,7 +92,7 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%,-50%);
-    width: 560px;
+    width: 680px;
     cursor: grab;
     z-index: 10;
     filter: drop-shadow(0 30px 70px rgba(90,20,70,0.75)) drop-shadow(0 0 90px rgba(180,90,150,0.2));
@@ -135,12 +135,12 @@
 </head>
 <body>
 
-<div class="hint" id="hint">drag me · click screen or button to play</div>
-<div id="channel-tag" class="hidden">CH 01 · THE POWERPUFF GIRLS</div>
+<div class="hint" id="hint">lohista mind · klõpsa ekraani või nuppu mängimiseks</div>
+<div id="channel-tag" class="hidden">KN 01 · POWERPUFF TÜDRUKUD</div>
 
 <div class="volume-bar" id="vol-bar">
-  <button class="mute-btn" id="mute-btn" title="Toggle mute">🔊</button>
-  <label>vol</label>
+  <button class="mute-btn" id="mute-btn" title="Vaigista">🔊</button>
+  <label>heli</label>
   <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.8"/>
 </div>
 
@@ -248,7 +248,7 @@
     <circle class="idle-blink" cx="305.41" cy="230" r="9" fill="rgba(180,100,150,0.18)"/>
     <text x="305.41" y="266" text-anchor="middle"
       font-family="'DM Mono',monospace" font-size="9" letter-spacing="3"
-      fill="rgba(200,130,170,0.4)">NO SIGNAL</text>
+      fill="rgba(200,130,170,0.4)">SIGNAAL PUUDUB</text>
   </g>
 
   <circle id="scanlines-circle" cx="305.41" cy="236.55" r="101.78"
