@@ -27,11 +27,11 @@
   #cursor {
     position: fixed;
     top: 0; left: 0;
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     pointer-events: none;
     z-index: 99999;
-    will-change: transform;
+    will-change: left, top;
   }
   #cursor img {
     width: 100%;
@@ -40,13 +40,13 @@
     animation: cursor-glow 2s ease-in-out infinite;
   }
   @keyframes cursor-glow {
-    0%   { filter: drop-shadow(0 0 6px #00c8ff) drop-shadow(0 0 16px #00c8ff) drop-shadow(0 0 2px #fff); }
-    25%  { filter: drop-shadow(0 0 6px #aa44ff) drop-shadow(0 0 16px #aa44ff) drop-shadow(0 0 2px #fff); }
-    50%  { filter: drop-shadow(0 0 6px #ff44cc) drop-shadow(0 0 16px #ff44cc) drop-shadow(0 0 2px #fff); }
-    75%  { filter: drop-shadow(0 0 6px #aa44ff) drop-shadow(0 0 16px #aa44ff) drop-shadow(0 0 2px #fff); }
-    100% { filter: drop-shadow(0 0 6px #00c8ff) drop-shadow(0 0 16px #00c8ff) drop-shadow(0 0 2px #fff); }
+    0%   { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff) drop-shadow(0 0 3px #fff); }
+    25%  { filter: drop-shadow(0 0 8px #aa44ff) drop-shadow(0 0 20px #aa44ff) drop-shadow(0 0 3px #fff); }
+    50%  { filter: drop-shadow(0 0 8px #ff44cc) drop-shadow(0 0 20px #ff44cc) drop-shadow(0 0 3px #fff); }
+    75%  { filter: drop-shadow(0 0 8px #aa44ff) drop-shadow(0 0 20px #aa44ff) drop-shadow(0 0 3px #fff); }
+    100% { filter: drop-shadow(0 0 8px #00c8ff) drop-shadow(0 0 20px #00c8ff) drop-shadow(0 0 3px #fff); }
   }
-  #cursor.clicking img { transform: scale(0.88); transition: transform 0.08s; }
+  #cursor.clicking img { transform: scale(0.85); transition: transform 0.08s; }
   * { cursor: none !important; }
 
   .hint {
@@ -66,7 +66,7 @@
 
   .volume-bar {
     position: fixed;
-    bottom: 60px; left: 50%;
+    bottom: 28px; left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
@@ -115,19 +115,17 @@
   }
   .mute-btn:hover { color: rgba(240,170,210,1); }
 
-  /* ── TV: anchored to bottom centre ── */
+  /* ── TV WIDGET ── */
   #tv {
     position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 780px;
+    /* default pos set by JS */
+    width: 900px;
     z-index: 10;
-    filter: drop-shadow(0 30px 70px rgba(90,20,70,0.75)) drop-shadow(0 0 90px rgba(180,90,150,0.2));
+    filter: drop-shadow(0 40px 80px rgba(90,20,70,0.8)) drop-shadow(0 0 100px rgba(180,90,150,0.25));
     transition: filter 0.3s;
   }
   #tv.playing {
-    filter: drop-shadow(0 30px 70px rgba(90,20,70,0.75)) drop-shadow(0 0 160px rgba(220,120,180,0.6));
+    filter: drop-shadow(0 40px 80px rgba(90,20,70,0.8)) drop-shadow(0 0 180px rgba(220,120,180,0.65));
   }
   #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
 
@@ -138,7 +136,7 @@
   .deco-line   { fill: none; stroke: rgba(80,30,65,0.55); stroke-width: 1.5; stroke-linecap: round; }
   .btn-bg      { fill: url(#grad-btn-bg); stroke: #7c3d6a; stroke-width: 1; filter: url(#shadow-btn); }
   .btn-inner   { fill: url(#grad-btn); stroke: rgba(40,10,50,0.6); stroke-width: 1; }
-  .btn-inner.on { fill: url(#grad-btn-on); filter: drop-shadow(0 0 8px rgba(255,160,220,0.95)); }
+  .btn-inner.on { fill: url(#grad-btn-on); filter: drop-shadow(0 0 10px rgba(255,160,220,0.95)); }
   .screen-click { fill: transparent; }
   .glare-overlay { pointer-events: none; }
 
@@ -320,6 +318,19 @@ const volBar      = document.getElementById('vol-bar');
 const volSlider   = document.getElementById('vol-slider');
 const muteBtn     = document.getElementById('mute-btn');
 
+const TV_W = 900;
+
+// Place TV so the bottom of the stand sits ~60px above the bottom of the screen
+function initPos() {
+  const tvH = tv.getBoundingClientRect().height || (TV_W * 592.79 / 629.36);
+  const x = (window.innerWidth  - TV_W) / 2;
+  const y = window.innerHeight - tvH - 60;
+  tv.style.left = x + 'px';
+  tv.style.top  = y + 'px';
+}
+// Run after first paint so height is available
+requestAnimationFrame(() => { requestAnimationFrame(initPos); });
+
 let isPlaying = false, isMuted = false, volTimer = null;
 vid.volume = parseFloat(volSlider.value);
 
@@ -377,29 +388,22 @@ screenClick.addEventListener('click', togglePlay);
 btnInner.addEventListener('click', togglePlay);
 btnBg.addEventListener('click', togglePlay);
 
-// ── DRAG (horizontal only, keeps bottom anchored to floor) ──
-let dragging = false, startX, startMouseX;
-let posX = 50; // percent from left
-
-function setPosX(pct) {
-  posX = Math.max(10, Math.min(90, pct));
-  tv.style.left      = posX + '%';
-  tv.style.transform = 'translateX(-50%)';
-}
-setPosX(posX);
+// ── DRAG — free in all directions ──
+let dragging = false, startX, startY, origLeft, origTop;
 
 tv.addEventListener('mousedown', e => {
   if ([screenClick, btnInner, btnBg].includes(e.target)) return;
   dragging = true;
-  startMouseX = e.clientX;
-  startX = posX;
+  startX   = e.clientX;
+  startY   = e.clientY;
+  origLeft = parseInt(tv.style.left) || 0;
+  origTop  = parseInt(tv.style.top)  || 0;
   e.preventDefault();
 });
 window.addEventListener('mousemove', e => {
   if (!dragging) return;
-  const dx = e.clientX - startMouseX;
-  const dxPct = (dx / window.innerWidth) * 100;
-  setPosX(startX + dxPct);
+  tv.style.left = (origLeft + e.clientX - startX) + 'px';
+  tv.style.top  = (origTop  + e.clientY - startY) + 'px';
   hint.classList.add('hidden');
 });
 window.addEventListener('mouseup', () => { dragging = false; });
@@ -408,16 +412,17 @@ tv.addEventListener('touchstart', e => {
   if ([screenClick, btnInner, btnBg].includes(e.target)) return;
   const t = e.touches[0];
   dragging = true;
-  startMouseX = t.clientX;
-  startX = posX;
+  startX   = t.clientX;
+  startY   = t.clientY;
+  origLeft = parseInt(tv.style.left) || 0;
+  origTop  = parseInt(tv.style.top)  || 0;
   e.preventDefault();
 }, { passive: false });
 window.addEventListener('touchmove', e => {
   if (!dragging) return;
   const t = e.touches[0];
-  const dx = t.clientX - startMouseX;
-  const dxPct = (dx / window.innerWidth) * 100;
-  setPosX(startX + dxPct);
+  tv.style.left = (origLeft + t.clientX - startX) + 'px';
+  tv.style.top  = (origTop  + t.clientY - startY) + 'px';
   e.preventDefault();
 }, { passive: false });
 window.addEventListener('touchend', () => { dragging = false; });
