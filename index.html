@@ -85,6 +85,11 @@
   }
   #tv svg { width: 100%; height: auto; overflow: visible; display: block; }
 
+  @media (max-width: 600px) {
+    #stage { top: 2vh; bottom: 2vh; }
+    #tv { width: min(98vw, calc(96vh * 1.061)); }
+  }
+
   .hint {
     position: fixed;
     bottom: clamp(10px, 2.5vh, 30px); left: 50%;
